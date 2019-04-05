@@ -1,12 +1,16 @@
 package crawler
 
-import org.scalatest.FlatSpec
+import akka.actor.ActorSystem
+import akka.testkit.TestKit
+import crawler.PageCrawlerActor.CrawlPage
+import org.scalatest.FlatSpecLike
 
-class PageCrawlerActorSpec extends FlatSpec {
+class PageCrawlerActorSpec extends TestKit(ActorSystem("test")) with FlatSpecLike {
 
+  val pageCrawler = system.actorOf(PageCrawlerActor.props("this"))
 
   "A PageCrawlerActor" should "return HTML from webpage" in {
-    succeed
+    pageCrawler ! CrawlPage("https://doc.akka.io/docs/akka/current/actors.html")
   }
 
 }
