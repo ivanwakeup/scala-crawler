@@ -7,10 +7,11 @@ import org.scalatest.FlatSpecLike
 
 class PageCrawlerActorSpec extends TestKit(ActorSystem("test")) with FlatSpecLike {
 
-  val pageCrawler = system.actorOf(PageCrawlerActor.props("this"))
+  val pageCrawler = system.actorOf(PageCrawlerActor.props())
 
   "A PageCrawlerActor" should "return HTML from webpage" in {
     pageCrawler ! CrawlPage("https://doc.akka.io/docs/akka/current/actors.html")
+    Thread.sleep(5000)
   }
 
 }
