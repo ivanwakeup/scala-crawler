@@ -11,7 +11,7 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test")) with FlatSpecLik
 
   "A PageCrawlerActor" should "return HTML from webpage" in {
     pageCrawler ! CrawlPage("https://doc.akka.io/docs/akka/current/actors.html")
-    Thread.sleep(5000)
+    Thread.sleep(15000)
   }
 
 }
