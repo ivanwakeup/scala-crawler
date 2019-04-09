@@ -26,8 +26,9 @@ class PageCrawlerActor extends Actor with ActorLogging {
       source.runWith(Sink.ignore)
     }
 
-    case FoundWord =>
-      println("found what we wanted!!!")
+    case FoundWord(word) =>
+      log.debug(s"found word: $word")
+      sender ! FoundWord(word)
 
     case CrawlerResponseBody(res) => log.debug(s"received payload like: ${res.take(10)}")
   }
@@ -49,7 +50,7 @@ class PageCrawlerActor extends Actor with ActorLogging {
 
   private def findWords(string: ByteString): Unit = {
     if (string.utf8String.contains("hello")) {
-      self ! FoundWord
+      self ! FoundWord("hello")
     }
   }
 
@@ -75,5 +76,5 @@ object PageCrawlerActor {
 
   case class PageCrawlResponse()
   case class CrawlerResponseBody[A](response: Iterable[A])
-  case object FoundWord
+  case class FoundWord(word: String)
 }
