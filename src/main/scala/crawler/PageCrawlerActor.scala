@@ -1,20 +1,19 @@
 package crawler
 
 import akka.NotUsed
-import akka.actor.{Actor, Props}
-import akka.event.Logging
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import akka.stream.{ActorMaterializer, Attributes}
 import akka.util.ByteString
-import crawler.PageCrawlerActor.CrawlPage
+import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody, FoundWord}
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 import scala.util.Success
-import scala.concurrent.duration._
 
-class PageCrawlerActor() extends Actor {
+class PageCrawlerActor extends Actor with ActorLogging {
 
 
   implicit val ec = context.dispatcher
@@ -23,27 +22,47 @@ class PageCrawlerActor() extends Actor {
 
   override def receive: Receive = {
     case CrawlPage(url) => {
-      crawlPage(url)
+      val source = crawlPage(url)
+      source.runWith(Sink.ignore)
     }
+
+    case FoundWord =>
+      println("found what we wanted!!!")
+
+    case CrawlerResponseBody(res) => log.debug(s"received payload like: ${res.take(10)}")
   }
 
 
-  def crawlPage(url: String) = {
+  private def crawlPage(url: String): Source[Future[HttpResponse], NotUsed] = {
     val source: Source[Future[HttpResponse], NotUsed] = Source(List(url)).map { url =>
       val req = HttpRequest(uri = url)
       Http(context.system).singleRequest(req)
-    }
-    val sink = Sink.foreach[Future[HttpResponse]](
-      resFut => resFut.onComplete({
-        case Success(res) => {
-          val time = 1000.millis
-          res.entity.toStrict(time).onComplete({
-            case Success(res) => println(res.data.utf8String)
-          })
+    }.map({
+      futResponse =>
+        futResponse.map { res =>
+          buildResponseBody(res.entity.dataBytes)
+          res
         }
-      })(ec)
+    })
+    source
+  }
+
+  private def findWords(string: ByteString): Unit = {
+    if (string.utf8String.contains("hello")) {
+      self ! FoundWord
+    }
+  }
+
+  private def buildResponseBody(byteSource: Source[ByteString, Any]): Unit = {
+    val result = ListBuffer[String]()
+    val completion = byteSource.runWith(Sink.foreach { byteString =>
+       result.append(byteString.utf8String)
+       findWords(byteString)
+      }
     )
-    source.to(sink).run()
+    completion.onComplete({
+      case Success(_) => self ! CrawlerResponseBody(result.toList)
+    })
   }
 
 }
@@ -53,4 +72,8 @@ object PageCrawlerActor {
   def props() = {
     Props(classOf[PageCrawlerActor])
   }
+
+  case class PageCrawlResponse()
+  case class CrawlerResponseBody[A](response: Iterable[A])
+  case object FoundWord
 }

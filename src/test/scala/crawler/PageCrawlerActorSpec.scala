@@ -9,7 +9,7 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test")) with FlatSpecLik
 
   val pageCrawler = system.actorOf(PageCrawlerActor.props())
 
-  "A PageCrawlerActor" should "return HTML from webpage" in {
+  "A PageCrawlerActor" should "respond with HTML from a page" in {
     pageCrawler ! CrawlPage("https://doc.akka.io/docs/akka/current/actors.html")
     Thread.sleep(15000)
   }
