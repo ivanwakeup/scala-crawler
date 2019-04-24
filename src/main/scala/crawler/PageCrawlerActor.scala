@@ -48,9 +48,11 @@ class PageCrawlerActor extends Actor with ActorLogging {
     source
   }
 
-  private def findWords(string: ByteString): Unit = {
-    if (string.utf8String.contains("hello")) {
-      self ! FoundWord("hello")
+  private def findEmail(string: ByteString): Unit = {
+    val emails = PageCrawlerActor.EMAIL_REGEX.findAllIn(string.utf8String.toCharArray)
+    while(emails.hasNext) {
+      val nxt = emails.next()
+      println(nxt)
     }
   }
 
@@ -58,7 +60,7 @@ class PageCrawlerActor extends Actor with ActorLogging {
     val result = ListBuffer[String]()
     val completion = byteSource.runWith(Sink.foreach { byteString =>
        result.append(byteString.utf8String)
-       findWords(byteString)
+       findEmail(byteString)
       }
     )
     completion.onComplete({
@@ -77,4 +79,6 @@ object PageCrawlerActor {
   case class PageCrawlResponse()
   case class CrawlerResponseBody[A](response: Iterable[A])
   case class FoundWord(word: String)
+
+  val EMAIL_REGEX = "[a-z0-9\\.\\-+_]+@[a-z0-9\\.\\-+_]+\\.com".r
 }

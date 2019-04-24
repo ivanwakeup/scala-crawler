@@ -12,7 +12,7 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
   val pageCrawler = system.actorOf(PageCrawlerActor.props())
 
   "A PageCrawlerActor" should "respond with HTML from a page" in {
-    pageCrawler ! CrawlPage("https://doc.akka.io/docs/akka/current/actors.html")
+    pageCrawler ! CrawlPage("https://www.regular-expressions.info/email.html")
 
 
     import scala.concurrent.duration._
