@@ -1,7 +1,7 @@
 package crawler
 
 import akka.NotUsed
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
@@ -22,26 +22,23 @@ class PageCrawlerActor extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case CrawlPage(url) => {
-      val source = crawlPage(url)
+      val s = sender
+      val source = crawlPage(url, s)
       source.runWith(Sink.ignore)
     }
-
-    case FoundEmails(emails) =>
-      log.debug(s"found emails: $emails")
-      sender ! FoundEmails(emails)
 
     case CrawlerResponseBody(res) => log.debug(s"received payload like: ${res.take(10)}")
   }
 
 
-  private def crawlPage(url: String): Source[Future[HttpResponse], NotUsed] = {
+  private def crawlPage(url: String, sender: ActorRef): Source[Future[HttpResponse], NotUsed] = {
     val source: Source[Future[HttpResponse], NotUsed] = Source(List(url)).map { url =>
       val req = HttpRequest(uri = url)
       Http(context.system).singleRequest(req)
     }.map({
       futResponse =>
         futResponse.map { res =>
-          buildResponseBody(res.entity.dataBytes)
+          buildResponseBody(res.entity.dataBytes, sender)
           res
         }
     })
@@ -57,12 +54,12 @@ class PageCrawlerActor extends Actor with ActorLogging {
     if(result.isEmpty) None else Some(result)
   }
 
-  private def buildResponseBody(byteSource: Source[ByteString, Any]): Unit = {
+  private def buildResponseBody(byteSource: Source[ByteString, Any], sender:ActorRef): Unit = {
     val result = ListBuffer[String]()
     val completion = byteSource.runWith(Sink.foreach { byteString =>
        findEmails(byteString).foreach{ emailSeq =>
          result.append(byteString.utf8String)
-         self ! FoundEmails(emailSeq)
+         sender ! FoundEmails(emailSeq)
        }
       }
     )

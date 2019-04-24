@@ -16,7 +16,7 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
 
     import scala.concurrent.duration._
     expectMsgPF(4000.millis) {
-      case FoundEmails(word) => succeed
+      case FoundEmails(emails) => println(emails); succeed
     }
 
   }
