@@ -7,18 +7,20 @@ import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
+import crawler.HtmlAnalyzerActor.Analyze
 import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody, FoundEmails}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 import scala.util.Success
 
-class PageCrawlerActor extends Actor with ActorLogging {
+class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
 
 
   implicit val ec = context.dispatcher
   implicit val mat = ActorMaterializer()
 
+  private val htmlAnalyzer = context.actorOf(analyzerProps)
 
   override def receive: Receive = {
     case CrawlPage(url) => {
@@ -45,22 +47,11 @@ class PageCrawlerActor extends Actor with ActorLogging {
     source
   }
 
-  private def findEmails(string: ByteString): Option[Seq[String]] = {
-    val emails = PageCrawlerActor.EMAIL_REGEX.findAllIn(string.utf8String.toCharArray)
-    val result = ListBuffer[String]()
-    while(emails.hasNext) {
-      result.append(emails.next())
-    }
-    if(result.isEmpty) None else Some(result)
-  }
-
   private def buildResponseBody(byteSource: Source[ByteString, Any], sender:ActorRef): Unit = {
     val result = ListBuffer[String]()
     val completion = byteSource.runWith(Sink.foreach { byteString =>
-       findEmails(byteString).foreach{ emailSeq =>
-         result.append(byteString.utf8String)
-         sender ! FoundEmails(emailSeq)
-       }
+       result.append(byteString.utf8String)
+       htmlAnalyzer ! Analyze(byteString.utf8String)
       }
     )
     completion.onComplete({
@@ -80,5 +71,5 @@ object PageCrawlerActor {
   case class CrawlerResponseBody[A](response: Iterable[A])
   case class FoundEmails(emails: Seq[String])
 
-  val EMAIL_REGEX = "[a-z0-9\\.\\-+_]+@[a-z0-9\\.\\-+_]+\\.com".r
+
 }
