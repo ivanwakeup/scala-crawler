@@ -4,9 +4,10 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody}
 import org.scalatest.FlatSpecLike
-import services.CrawlerRepository
+import services.{CrawlData, CrawlerRepository}
 
 import scala.concurrent.Future
+
 
 class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
   with FlatSpecLike
@@ -31,5 +32,5 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
 }
 
 case class TestRepository() extends CrawlerRepository {
-  override def insert(any: AnyRef): Future[Unit] = Future.successful()
+  override def insert(any: CrawlData): Future[Unit] = Future.successful()
 }

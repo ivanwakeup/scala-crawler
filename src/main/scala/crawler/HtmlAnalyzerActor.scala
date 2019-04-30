@@ -2,7 +2,7 @@ package crawler
 
 import akka.actor.{Actor, ActorLogging, Props}
 import crawler.HtmlAnalyzerActor.Analyze
-import services.CrawlerRepository
+import services.{CrawlData, CrawlerRepository}
 
 import scala.collection.mutable.ListBuffer
 
@@ -12,7 +12,7 @@ class HtmlAnalyzerActor(crawlerRepository: CrawlerRepository) extends Actor with
     case Analyze(htmlString) => {
       val emailResult = findEmails(htmlString)
       emailResult.foreach({
-        emails => emails.map{email => crawlerRepository.insert(email)}
+        emails => emails.map{email => crawlerRepository.insert(CrawlData(email, "someurl.com"))}
       })
     }
   }

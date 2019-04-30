@@ -5,8 +5,15 @@ import slick.jdbc.H2Profile.api._
 class PsqlCrawlerRepository()(implicit ec: ExecutionContext) extends CrawlerRepository {
 
   val db = Database.forConfig("h2mem1")
-  override def insert(crawlData: CrawlData): Future[Unit] = {
 
+  override def insert(crawlData: CrawlData): Future[Unit] = {
+    val action = PsqlCrawlerRepository.crawlData ++= Seq(
+      (1, crawlData.email, crawlData.url)
+    )
+    action.map { insertRes =>
+      Future.successful()
+    }
+    Future.successful()
   }
 
 }
