@@ -69,5 +69,4 @@ object PageCrawlerActor {
   case class CrawlerResponseBody[A](response: Iterable[A])
   case class FoundEmails(emails: Seq[String])
 
-
 }

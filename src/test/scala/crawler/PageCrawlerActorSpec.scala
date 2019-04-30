@@ -2,8 +2,7 @@ package crawler
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody, FoundEmails}
-import org.scalamock.scalatest.MockFactory
+import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody}
 import org.scalatest.FlatSpecLike
 import services.CrawlerRepository
 
@@ -11,8 +10,7 @@ import scala.concurrent.Future
 
 class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
   with FlatSpecLike
-  with ImplicitSender
-  with MockFactory {
+  with ImplicitSender {
 
   val probe = TestProbe()
 
@@ -33,5 +31,5 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
 }
 
 case class TestRepository() extends CrawlerRepository {
-  override def storeAny(any: AnyRef): Future[Unit] = Future.successful()
+  override def insert(any: AnyRef): Future[Unit] = Future.successful()
 }
