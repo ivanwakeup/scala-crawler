@@ -8,7 +8,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
 import crawler.HtmlAnalyzerActor.Analyze
-import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody, FoundEmails}
+import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
@@ -28,8 +28,6 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
       val source = crawlPage(url, s)
       source.runWith(Sink.ignore)
     }
-
-    case CrawlerResponseBody(res) => log.debug(s"received payload like: ${res.take(10)}")
   }
 
 
@@ -55,7 +53,7 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
       }
     )
     completion.onComplete({
-      case Success(_) => self ! CrawlerResponseBody(result.toList)
+      case Success(_) => sender ! CrawlerResponseBody(result.toList)
     })
   }
 
@@ -63,8 +61,8 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
 
 object PageCrawlerActor {
   case class CrawlPage(url: String)
-  def props() = {
-    Props(classOf[PageCrawlerActor])
+  def props(htmlAnalyzerProps: Props) = {
+    Props(classOf[PageCrawlerActor], htmlAnalyzerProps)
   }
 
   case class PageCrawlResponse()

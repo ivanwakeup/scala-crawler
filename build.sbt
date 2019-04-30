@@ -22,6 +22,6 @@ lazy val root = (project in file(".")).
 
       "com.typesafe" % "config" % "1.3.2"
 
-
     )
-  )
+
+)

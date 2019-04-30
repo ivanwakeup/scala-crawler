@@ -1,6 +1,6 @@
 package crawler
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Props}
 import crawler.HtmlAnalyzerActor.Analyze
 import services.CrawlerRepository
 
@@ -30,6 +30,10 @@ class HtmlAnalyzerActor(crawlerRepository: CrawlerRepository) extends Actor with
 }
 
 object HtmlAnalyzerActor {
+
+  def props(repository: CrawlerRepository): Props = {
+    Props(classOf[HtmlAnalyzerActor], repository)
+  }
 
   sealed trait HtmlAnalyzerActorMessage
   case class Analyze(htmlString: String) extends HtmlAnalyzerActorMessage
