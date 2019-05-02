@@ -1,12 +1,10 @@
 package services
 
-import akka.actor.ActorSystem
-import akka.testkit.TestKit
-import org.scalatest.{BeforeAndAfterAll, FlatSpecLike}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
 import slick.jdbc.H2Profile.api._
 
 
-class PsqlCrawlerRepositorySpec extends TestKit(ActorSystem("test")) with FlatSpecLike with BeforeAndAfterAll {
+class PsqlCrawlerRepositorySpec extends AsyncFlatSpec with BeforeAndAfterAll {
 
 
   val setup = DBIO.seq(
@@ -16,7 +14,6 @@ class PsqlCrawlerRepositorySpec extends TestKit(ActorSystem("test")) with FlatSp
 
   val cd = CrawlData("someguy@gmail.com", "this.com")
 
-  import scala.concurrent.ExecutionContext.Implicits.global
   val repo = new PsqlCrawlerRepository()
 
   override def beforeAll(): Unit = {
@@ -24,11 +21,12 @@ class PsqlCrawlerRepositorySpec extends TestKit(ActorSystem("test")) with FlatSp
   }
 
   "A PsqlCrawlerRepository" should "insert records into a psql database in" in {
-    repo.insert(cd)
-
-    db.run(PsqlCrawlerRepository.crawlData.result).map(_.foreach({
-      println(_)
-    }))
+    repo.insert(cd).map{ rows =>
+      val result = PsqlCrawlerRepository.crawlData.result
+      db.run(result).map{ tup =>
+        assert(tup.head._2 == "someguy@gmail.com")
+      }
+    }.flatMap(assertion => assertion)
   }
 
 }
