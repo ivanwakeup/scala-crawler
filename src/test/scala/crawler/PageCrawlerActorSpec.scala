@@ -32,5 +32,5 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
 }
 
 case class TestRepository() extends CrawlerRepository {
-  override def insert(any: CrawlData): Future[Unit] = Future.successful()
+  override def insert(any: CrawlData): Future[Int] = Future.successful(1)
 }

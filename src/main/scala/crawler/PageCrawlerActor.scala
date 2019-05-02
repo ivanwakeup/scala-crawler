@@ -70,3 +70,6 @@ object PageCrawlerActor {
   case class FoundEmails(emails: Seq[String])
 
 }
+
+
+trait Animal

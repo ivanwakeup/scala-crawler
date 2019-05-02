@@ -21,12 +21,19 @@ class PsqlCrawlerRepositorySpec extends AsyncFlatSpec with BeforeAndAfterAll {
   }
 
   "A PsqlCrawlerRepository" should "insert records into a psql database in" in {
-    repo.insert(cd).map{ rows =>
-      val result = PsqlCrawlerRepository.crawlData.result
-      db.run(result).map{ tup =>
+    repo.insert(cd).map{ _ =>
+      db.run(PsqlCrawlerRepository.crawlData.result).map{ tup =>
         assert(tup.head._2 == "someguy@gmail.com")
       }
-    }.flatMap(assertion => assertion)
+    }.flatMap(a => a)
+
   }
+
+  it should "return the correct rows inserted" in {
+    repo.insert(cd).map { rows =>
+      assert(rows == 1)
+    }
+  }
+
 
 }

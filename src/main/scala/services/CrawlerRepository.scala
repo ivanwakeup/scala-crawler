@@ -3,7 +3,7 @@ package services
 import scala.concurrent.Future
 
 trait CrawlerRepository {
-  def insert(any: CrawlData): Future[Unit]
+  def insert(crawlData: CrawlData*): Future[Int]
 }
 
 case class CrawlData(email: String, url: String)
