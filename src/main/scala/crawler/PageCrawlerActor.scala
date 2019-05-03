@@ -30,7 +30,6 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
     }
   }
 
-
   private def crawlPage(url: String, sender: ActorRef): Source[Future[HttpResponse], NotUsed] = {
     val source: Source[Future[HttpResponse], NotUsed] = Source(List(url)).map { url =>
       val req = HttpRequest(uri = url)
