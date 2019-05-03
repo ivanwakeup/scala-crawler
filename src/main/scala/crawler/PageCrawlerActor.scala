@@ -1,7 +1,9 @@
 package crawler
 
-import akka.NotUsed
+import akka.{Done, NotUsed}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.cluster.client.ClusterClient.Publish
+import akka.cluster.pubsub.DistributedPubSub
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
@@ -9,6 +11,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import akka.util.ByteString
 import crawler.HtmlAnalyzerActor.Analyze
 import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody}
+import utils.ConfigValues
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
@@ -20,41 +23,23 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
   implicit val ec = context.dispatcher
   implicit val mat = ActorMaterializer()
 
-  private val htmlAnalyzer = context.actorOf(analyzerProps)
+  val mediator = DistributedPubSub(context.system).mediator
 
   override def receive: Receive = {
-    case CrawlPage(url) => {
-      val s = sender
-      val source = crawlPage(url, s)
-      source.runWith(Sink.ignore)
-    }
+    case CrawlPage(url) => crawlPage(url)
   }
 
-  private def crawlPage(url: String, sender: ActorRef): Source[Future[HttpResponse], NotUsed] = {
-    val source: Source[Future[HttpResponse], NotUsed] = Source(List(url)).map { url =>
-      val req = HttpRequest(uri = url)
-      Http(context.system).singleRequest(req)
-    }.map({
-      futResponse =>
-        futResponse.map { res =>
-          buildResponseBody(res.entity.dataBytes, sender)
-          res
-        }
+  private def crawlPage(url: String): Unit = {
+
+    val req = HttpRequest(uri = url)
+    Http(context.system).singleRequest(req).map({
+      response =>
+        response.entity.dataBytes.runWith(Sink.foreach({ byteString =>
+          mediator ! Publish(ConfigValues.CRAWL_BYTES_TOPIC, byteString)
+        }))
     })
-    source
   }
 
-  private def buildResponseBody(byteSource: Source[ByteString, Any], sender:ActorRef): Unit = {
-    val result = ListBuffer[String]()
-    val completion = byteSource.runWith(Sink.foreach { byteString =>
-       result.append(byteString.utf8String)
-       htmlAnalyzer ! Analyze(byteString.utf8String)
-      }
-    )
-    completion.onComplete({
-      case Success(_) => sender ! CrawlerResponseBody(result.toList)
-    })
-  }
 
 }
 
@@ -70,5 +55,3 @@ object PageCrawlerActor {
 
 }
 
-
-trait Animal

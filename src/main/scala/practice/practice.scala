@@ -2,12 +2,20 @@ package practice
 
 object practice extends App {
 
-  def whileLoop(condition: => Boolean)(body: => Unit): Unit = {
+  def whileLoopByName(condition: => Boolean)(body: => Long): Unit = {
     if(condition){
-      body
-      whileLoop(condition)(body)
+      println(body)
+      whileLoopByName(condition)(body)
     }
   }
+
+  def whileLoopByValue(condition: => Boolean)(body: Long): Unit = {
+    if(condition){
+      println(body)
+      whileLoopByValue(condition)(body)
+    }
+  }
+
   //we want this condition to be something that gens a random number, and returns false
   def cond: Boolean = {
     val result = new java.util.Random()
@@ -18,7 +26,16 @@ object practice extends App {
     }
   }
 
+  def getTime() = {
+    println("getting time")
+    System.nanoTime()
+  }
 
-  whileLoop(cond)(println("hio"))
+  val t = getTime()
+  whileLoopByName(cond)(getTime())
+  whileLoopByValue(cond)(t)
+
+  //call by value functions are useful to ensure the "body" of your code gets executed EVERY time you call. so,
+  //in our while loop we get this behavior
 
 }
