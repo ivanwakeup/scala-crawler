@@ -1,9 +1,11 @@
 package crawler
 
-import akka.actor.{Actor, ActorRef, Props}
-import akka.util.{ByteString, Timeout}
-import crawler.AnalyzerSupervisorActor.Distribute
+import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
+import akka.util.{ByteString, Timeout}
+import crawler.AnalyzerRegistry.GetAnalyzers
+import crawler.AnalyzerSupervisorActor.Distribute
+
 import scala.concurrent.duration._
 
 /*
@@ -16,20 +18,29 @@ we want this actor to:
  */
 class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor {
 
-  private val wordCounterActor = context.actorOf(Props())
-  private val emailFinderActor = context.actorOf(Props())
-  private val htmlParserActor = context.actorOf(Props())
-
   implicit val ec = context.dispatcher
   implicit val timeout = Timeout(5.seconds)
 
+
+  private val analyzers: Seq[ActorRef] = scala.collection.mutable.Seq()
+
+  /*
+  how to ensure all interested actors are registered in response?
+
+   */
   override def preStart(): Unit = {
-    (analyzerRegistry ? GetAnalyzers)
+    (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistry.AnalyzersResponse].map { res =>
+      res.analyzers.foreach({ props =>
+        val nextAnalyzer:ActorRef = context.actorOf(props)
+        analyzers :+ nextAnalyzer
+      })
+    }
   }
 
   override def receive: Receive = {
     case Distribute(byteString) => _
   }
+
 }
 
 object AnalyzerSupervisorActor {
