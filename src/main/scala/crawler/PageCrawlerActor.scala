@@ -1,21 +1,14 @@
 package crawler
 
-import akka.{Done, NotUsed}
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.cluster.client.ClusterClient.Publish
-import akka.cluster.pubsub.DistributedPubSub
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
-import akka.util.ByteString
-import crawler.HtmlAnalyzerActor.Analyze
-import crawler.PageCrawlerActor.{CrawlPage, CrawlerResponseBody}
+import akka.stream.scaladsl.Sink
+import crawler.AnalyzerSupervisorActor.Distribute
+import crawler.PageCrawlerActor.CrawlPage
 import utils.ConfigValues
-
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future
-import scala.util.Success
 
 class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
 
@@ -23,7 +16,7 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
   implicit val ec = context.dispatcher
   implicit val mat = ActorMaterializer()
 
-  val mediator = DistributedPubSub(context.system).mediator
+  val analyzerSupervisor = context.actorOf(analyzerProps)
 
   override def receive: Receive = {
     case CrawlPage(url) => crawlPage(url)
@@ -35,11 +28,10 @@ class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
     Http(context.system).singleRequest(req).map({
       response =>
         response.entity.dataBytes.runWith(Sink.foreach({ byteString =>
-          mediator ! Publish(ConfigValues.CRAWL_BYTES_TOPIC, byteString)
+          analyzerSupervisor ! Distribute(byteString)
         }))
     })
   }
-
 
 }
 
