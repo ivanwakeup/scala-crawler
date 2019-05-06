@@ -2,7 +2,6 @@ package crawler
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
-import akka.remote.transport.ThrottlerTransportAdapter.Direction.Receive
 import akka.util.{ByteString, Timeout}
 import analyzer.BaseAnalyzer.Analyze
 import crawler.AnalyzerRegistry.GetAnalyzers
