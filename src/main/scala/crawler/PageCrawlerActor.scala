@@ -8,13 +8,13 @@ import akka.stream.scaladsl.Sink
 import crawler.AnalyzerSupervisorActor.Distribute
 import crawler.PageCrawlerActor.CrawlPage
 
-class PageCrawlerActor(analyzerProps: Props) extends Actor with ActorLogging {
+class PageCrawlerActor(analyzerSupervisorProps: Props) extends Actor with ActorLogging {
 
 
   implicit val ec = context.dispatcher
   implicit val mat = ActorMaterializer()
 
-  val analyzerSupervisor = context.actorOf(analyzerProps)
+  val analyzerSupervisor = context.actorOf(analyzerSupervisorProps)
 
   override def receive: Receive = {
     case CrawlPage(url) => crawlPage(url)

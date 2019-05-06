@@ -1,10 +1,12 @@
 package crawler
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
+import akka.remote.transport.ThrottlerTransportAdapter.Direction.Receive
 import akka.util.{ByteString, Timeout}
+import analyzer.BaseAnalyzer.Analyze
 import crawler.AnalyzerRegistry.GetAnalyzers
-import crawler.AnalyzerSupervisorActor.Distribute
+import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
 
 import scala.concurrent.duration._
 
@@ -16,7 +18,7 @@ we want this actor to:
 3. forward the incoming bytestring to each of the interested actors
 
  */
-class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor {
+class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with ActorLogging {
 
   implicit val ec = context.dispatcher
   implicit val timeout = Timeout(5.seconds)
@@ -29,20 +31,35 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor {
 
    */
   override def preStart(): Unit = {
+    log.debug(s"total of ${analyzers.size} on initialization")
     (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistry.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
         val nextAnalyzer:ActorRef = context.actorOf(props)
         analyzers :+ nextAnalyzer
       })
     }
+    log.debug(s"${analyzers.size} analyzers now available")
   }
 
   override def receive: Receive = {
-    case Distribute(byteString) => _
+    case Distribute(byteString) => {
+      analyzers.foreach({ analyzer: ActorRef =>
+        analyzer ! Analyze(byteString)
+      })
+      sender ! DistributionInitiated
+    }
   }
 
 }
 
 object AnalyzerSupervisorActor {
-  case class Distribute(byteString: ByteString)
+
+  def props(analyzerRegistry: ActorRef): Props = {
+    Props(classOf[AnalyzerSupervisorActor], analyzerRegistry)
+  }
+
+  sealed trait AnalyzerSupervisorActorMessage
+  case class Distribute(byteString: ByteString) extends AnalyzerSupervisorActorMessage
+  case object DistributionInitiated extends AnalyzerSupervisorActorMessage
+
 }
