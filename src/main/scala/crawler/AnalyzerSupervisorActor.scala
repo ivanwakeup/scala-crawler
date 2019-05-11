@@ -7,7 +7,9 @@ import analyzer.BaseAnalyzer.Analyze
 import crawler.AnalyzerRegistryActor.GetAnalyzers
 import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
+import akka.pattern._
 
 /*
 we want this actor to:
@@ -41,11 +43,15 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
   }
 
   override def receive: Receive = {
-    case Distribute(byteString) => {
-      analyzers.foreach({ analyzer: ActorRef =>
+    case Distribute(byteString) => pipe(distribute(byteString)) to sender
+  }
+
+
+  private[crawler] def distribute(byteString: ByteString): Future[Any] = {
+    Future {
+      analyzers.foreach { analyzer =>
         analyzer ! Analyze(byteString)
-      })
-      sender ! DistributionInitiated
+      }
     }
   }
 
