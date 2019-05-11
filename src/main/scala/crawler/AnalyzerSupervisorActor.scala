@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.util.{ByteString, Timeout}
 import analyzer.BaseAnalyzer.Analyze
-import crawler.AnalyzerRegistry.GetAnalyzers
+import crawler.AnalyzerRegistryActor.GetAnalyzers
 import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
 
 import scala.concurrent.duration._
@@ -31,7 +31,7 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
    */
   override def preStart(): Unit = {
     log.debug(s"total of ${analyzers.size} on initialization")
-    (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistry.AnalyzersResponse].map { res =>
+    (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistryActor.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
         val nextAnalyzer:ActorRef = context.actorOf(props)
         analyzers :+ nextAnalyzer

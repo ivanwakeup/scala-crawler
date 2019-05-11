@@ -2,9 +2,9 @@ package crawler
 
 import akka.actor.{Actor, Props}
 import analyzer.EmailFinder
-import crawler.AnalyzerRegistry.GetAnalyzers
+import crawler.AnalyzerRegistryActor.GetAnalyzers
 
-class AnalyzerRegistry extends Actor {
+class AnalyzerRegistryActor extends Actor {
 
   //private val wordCounterActor = context.actorOf(Props())
   //private val emailFinderActor =
@@ -20,12 +20,12 @@ class AnalyzerRegistry extends Actor {
 
 }
 
-object AnalyzerRegistry {
+object AnalyzerRegistryActor {
   sealed trait AnalyzerRegistryMessage
   case object GetAnalyzers extends AnalyzerRegistryMessage
   case class AnalyzersResponse(analyzers: Seq[Props]) extends AnalyzerRegistryMessage
 
   def props(): Props = {
-    Props(classOf[AnalyzerRegistry])
+    Props(classOf[AnalyzerRegistryActor])
   }
 }

@@ -1,30 +1,28 @@
 package crawler
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import crawler.PageCrawlerActor.CrawlPage
 import org.scalatest.FlatSpecLike
-import utils.TestResponder
-import utils.TestResponder._
+import utils.TestReceiver
 
 
 class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
   with FlatSpecLike
   with ImplicitSender {
 
-  val pageCrawler = system.actorOf(TestResponder.props())
+
+  val pageCrawlerActor = system.actorOf(PageCrawlerActor.props(TestReceiver.props()))
 
   "A PageCrawlerActor" should "respond with HTML from a page" in {
-    pageCrawler ! CrawlPage("https://www.regular-expressions.info/email.html")
-
+    pageCrawlerActor ! CrawlPage("https://www.google.com/")
     import scala.concurrent.duration._
     expectMsgPF(4000.millis) {
-      case TestMessageReceived => succeed
-      case _ => fail()
+      case _: Done => succeed
+      case _ => fail("PageCrawlerActorSpec received unexpected response from initiating a crawl!")
     }
-
   }
 
 }
-
 
