@@ -46,13 +46,12 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
     case Distribute(byteString) => pipe(distribute(byteString)) to sender
   }
 
-
+  /*careful with the future here, messages could arrive out of order*/
   private[crawler] def distribute(byteString: ByteString): Future[Any] = {
-    Future {
-      analyzers.foreach { analyzer =>
-        analyzer ! Analyze(byteString)
-      }
+    analyzers.foreach { analyzer =>
+      analyzer ! Analyze(byteString)
     }
+    Future.successful()
   }
 
 }
