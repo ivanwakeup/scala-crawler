@@ -12,7 +12,9 @@ class EmailFinder extends BaseAnalyzer {
   override def analyze(bytes: ByteString): Future[Unit] = {
     val emails = EmailFinder.EMAIL_REGEX.findAllIn(bytes.utf8String)
     while(emails.hasNext) {
-      emailSet += emails.next()
+      val nxtEmail = emails.next()
+      emailSet += nxtEmail
+      println(s"found email $nxtEmail")
     }
     Future.successful()
   }
@@ -23,4 +25,7 @@ object EmailFinder {
     Props(classOf[EmailFinder])
   }
   val EMAIL_REGEX = "[a-z0-9\\.\\-+_]+@[a-z0-9\\.\\-+_]+\\.com".r
+
+  sealed trait EmailFinderMessage
+  case object PrintEmails extends EmailFinderMessage
 }

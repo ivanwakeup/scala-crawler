@@ -9,9 +9,9 @@ object practice extends App {
     }
   }
 
-  def whileLoopByValue(condition: => Boolean)(body: Long): Unit = {
+  def whileLoopByValue(condition: => Boolean)(body: () => Long): Unit = {
     if(condition){
-      println(body)
+      println(body())
       whileLoopByValue(condition)(body)
     }
   }
@@ -31,11 +31,30 @@ object practice extends App {
     System.nanoTime()
   }
 
-  val t = getTime()
-  whileLoopByName(cond)(getTime())
-  whileLoopByValue(cond)(t)
+  //val t = getTime()
+  //whileLoopByValue(cond)(getTime)
+  //whileLoopByName(cond)(getTime())
 
   //call by value functions are useful to ensure the "body" of your code gets executed EVERY time you call. so,
   //in our while loop we get this behavior
 
+
+
+  /*demo that shows when a by-name parameter is evaluated, vs a by-value */
+  def incByName(x: => Int) = {
+    println("begin inc")
+    val nxt = x + 1
+    println(nxt)
+  }
+  //on this call, the body supplied here isn't evaluated (and thus "started body" isn't printed)
+  //until the "begin inc" already started
+  incByName{ println("started body"); 1 + 1}
+
+  def incByValue(x: () => Int): Unit = {
+    println("begin inc")
+    println(x() + 1)
+  }
+  println("\n\nend by name demo \n\n")
+
+  //incByValue { println("started body"); 1 + 1 }
 }

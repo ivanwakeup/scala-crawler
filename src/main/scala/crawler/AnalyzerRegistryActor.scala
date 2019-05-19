@@ -1,10 +1,10 @@
 package crawler
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import analyzer.EmailFinder
-import crawler.AnalyzerRegistryActor.GetAnalyzers
+import crawler.AnalyzerRegistryActor.{AnalyzersResponse, GetAnalyzers}
 
-class AnalyzerRegistryActor extends Actor {
+class AnalyzerRegistryActor extends Actor with ActorLogging {
 
   //private val wordCounterActor = context.actorOf(Props())
   //private val emailFinderActor =
@@ -14,9 +14,14 @@ class AnalyzerRegistryActor extends Actor {
     EmailFinder.props()
   )
 
-  override def receive: Receive = {
-    case GetAnalyzers => sender ! analyzers
+  override def preStart(): Unit = {
+    log.info(s"starting ${this.getClass.getCanonicalName} actor!!")
   }
+
+  override def receive: Receive = {
+    case GetAnalyzers =>  sender ! AnalyzersResponse(analyzers)
+  }
+
 
 }
 

@@ -44,8 +44,8 @@ class PageCrawlerActor(analyzerSupervisorProps: Props) extends Actor with ActorL
 
 object PageCrawlerActor {
   case class CrawlPage(url: String)
-  def props(analyzerProps: Props) = {
-    Props(classOf[PageCrawlerActor], analyzerProps)
+  def props(analyzerSupervisorProps: Props) = {
+    Props(classOf[PageCrawlerActor], analyzerSupervisorProps)
   }
 
   case class PageCrawlResponse()

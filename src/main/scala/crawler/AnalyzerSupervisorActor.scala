@@ -25,7 +25,7 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
   implicit val timeout = Timeout(5.seconds)
 
 
-  private val analyzers: Seq[ActorRef] = scala.collection.mutable.Seq()
+  private var analyzers: Seq[ActorRef] = Seq()
 
   /*
   how to ensure all interested actors are registered in response?
@@ -36,10 +36,11 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
     (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistryActor.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
         val nextAnalyzer:ActorRef = context.actorOf(props)
-        analyzers :+ nextAnalyzer
+        analyzers = analyzers :+ nextAnalyzer
       })
+      log.debug(s"${analyzers.size} analyzers now available")
     }
-    log.debug(s"${analyzers.size} analyzers now available")
+
   }
 
   override def receive: Receive = {
