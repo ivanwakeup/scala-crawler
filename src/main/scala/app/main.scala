@@ -16,15 +16,18 @@ object main extends App {
   val registry = system.actorOf(AnalyzerRegistryActor.props())
   val supervisorProps = AnalyzerSupervisorActor.props(registry)
 
-  val pageCrawlerActor = system.actorOf(PageCrawlerActor.props(supervisorProps))
+
 
 
   val pages: List[String] = List(
     "https://www.regular-expressions.info/email.html",
-    "https://www.regextester.com/99232"
+    "https://www.regextester.com/99232",
+    "https://docs.microsoft.com/en-us/dotnet/standard/base-types/how-to-verify-that-strings-are-in-valid-email-format"
+
   )
 
   pages.foreach { page =>
+    val pageCrawlerActor = system.actorOf(PageCrawlerActor.props(supervisorProps))
     pageCrawlerActor ! CrawlPage(page)
   }
 
