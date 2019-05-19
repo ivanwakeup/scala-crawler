@@ -21,7 +21,7 @@ class PageCrawlerActor(analyzerSupervisorProps: Props) extends Actor with ActorL
   val analyzerSupervisor = context.actorOf(analyzerSupervisorProps)
 
   override def receive: Receive = {
-    case CrawlPage(url) => pipe(crawlPage(url)) to sender
+    case CrawlPage(url) => crawlPage(url)
     case DistributionInitiated => context.parent ! DistributionInitiated
   }
 
