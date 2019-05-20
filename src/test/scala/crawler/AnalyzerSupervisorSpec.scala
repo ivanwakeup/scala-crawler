@@ -13,7 +13,7 @@ class AnalyzerSupervisorSpec extends TestKit(ActorSystem("test"))
 
 
   val registry = system.actorOf(AnalyzerRegistryActor.props())
-  val supervisor = system.actorOf(AnalyzerSupervisorActor.props(registry))
+  val supervisor = system.actorOf(AnalyzerSupervisorActor.props(registry, "testurl"))
 
   "A PageCrawlerActor" should "respond with HTML from a page" in {
     supervisor ! Distribute(ByteString("this"))

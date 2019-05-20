@@ -6,9 +6,6 @@ import crawler.AnalyzerRegistryActor.{AnalyzersResponse, GetAnalyzers}
 
 class AnalyzerRegistryActor extends Actor with ActorLogging {
 
-  //private val wordCounterActor = context.actorOf(Props())
-  //private val emailFinderActor =
-  //private val htmlParserActor = context.actorOf(Props())
 
   private val analyzers: Seq[Props] = Seq(
     EmailFinder.props()

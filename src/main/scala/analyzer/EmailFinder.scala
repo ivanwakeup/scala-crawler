@@ -14,7 +14,7 @@ class EmailFinder extends BaseAnalyzer {
     while(emails.hasNext) {
       val nxtEmail = emails.next()
       emailSet += nxtEmail
-      println(s"found email $nxtEmail")
+      println(s"found email $nxtEmail at ${metadata.url}")
     }
     Future.successful()
   }
@@ -24,6 +24,7 @@ object EmailFinder {
   def props(): Props = {
     Props(classOf[EmailFinder])
   }
+
   val EMAIL_REGEX = "[a-z0-9\\.\\-+_]+@[a-z0-9\\.\\-+_]+\\.com".r
 
   sealed trait EmailFinderMessage

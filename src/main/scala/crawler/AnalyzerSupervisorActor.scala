@@ -3,7 +3,7 @@ package crawler
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.util.{ByteString, Timeout}
-import analyzer.BaseAnalyzer.Analyze
+import analyzer.BaseAnalyzer.{Analyze, AnalyzerMetadata}
 import crawler.AnalyzerRegistryActor.GetAnalyzers
 import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
 
@@ -19,7 +19,7 @@ we want this actor to:
 3. forward the incoming bytestring to each of the interested actors
 
  */
-class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with ActorLogging {
+class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends Actor with ActorLogging {
 
   implicit val ec = context.dispatcher
   implicit val timeout = Timeout(5.seconds)
@@ -36,6 +36,7 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
     (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistryActor.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
         val nextAnalyzer:ActorRef = context.actorOf(props)
+        nextAnalyzer ! AnalyzerMetadata(url)
         analyzers = analyzers :+ nextAnalyzer
       })
       log.debug(s"${analyzers.size} analyzers now available")
@@ -59,8 +60,8 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef) extends Actor with Act
 
 object AnalyzerSupervisorActor {
 
-  def props(analyzerRegistry: ActorRef): Props = {
-    Props(classOf[AnalyzerSupervisorActor], analyzerRegistry)
+  def props(analyzerRegistry: ActorRef, url: String): Props = {
+    Props(classOf[AnalyzerSupervisorActor], analyzerRegistry, url)
   }
 
   sealed trait AnalyzerSupervisorActorMessage

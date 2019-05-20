@@ -4,7 +4,6 @@ import akka.Done
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
-import akka.pattern._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
 import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
