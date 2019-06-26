@@ -16,7 +16,7 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
   val pageCrawlerActor = system.actorOf(PageCrawlerActor.props(TestReceiver.props()))
 
   "A PageCrawlerActor" should "respond with HTML from a page" in {
-    pageCrawlerActor ! CrawlPage("https://www.google.com/")
+    pageCrawlerActor ! CrawlPage("https://www.regular-expressions.info/email.html")
     import scala.concurrent.duration._
     expectMsgPF(4000.millis) {
       case _: Done => succeed

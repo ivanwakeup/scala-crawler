@@ -12,7 +12,7 @@ class HtmlAnalyzerActor(crawlerRepository: CrawlerRepository) extends Actor with
     case Analyze(htmlString) => {
       val emailResult = findEmails(htmlString)
       emailResult.foreach({
-        emails => emails.map{email => crawlerRepository.insert(CrawlData(email, "someurl.com"))}
+        emails => emails.map{email => println(email); crawlerRepository.insert(CrawlData(email, "someurl.com"))}
       })
     }
   }
