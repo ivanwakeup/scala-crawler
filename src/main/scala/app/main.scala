@@ -10,7 +10,10 @@ import crawler.{AnalyzerRegistryActor, AnalyzerSupervisorActor, CrawlerQueuer, P
 
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
+import akka.kafka.ConsumerSettings
 import akka.stream.ActorMaterializer
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 
 import scala.io.StdIn
 
@@ -40,13 +43,14 @@ object main extends App {
     }
   }
 
-  val bindingFuture = Http().bindAndHandle(route, "127.0.0.1", 8080)
+  val config = system.settings.config.getConfig("akka.kafka.consumer")
 
+  val bootstrapServers = "localhost:2181"
 
-  StdIn.readLine()
-
-  bindingFuture
-    .flatMap(_.unbind())
-    .onComplete(_ => system.terminate())
+  val consumerSettings =
+    ConsumerSettings(config, new StringDeserializer, new ByteArrayDeserializer)
+      .withBootstrapServers(bootstrapServers)
+      .withGroupId("group1")
+      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
 
 }

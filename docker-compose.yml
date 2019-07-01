@@ -12,7 +12,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: wurstmeister/kafka:2.11-2.2.1
+    image: wurstmeister/kafka:2.12-2.2.1
     hostname: kafka
     links:
       - zookeeper

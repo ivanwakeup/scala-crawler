@@ -1,6 +1,7 @@
+
 lazy val akkaHttpVersion = "10.1.8"
 lazy val akkaVersion    = "2.5.21"
-
+lazy val kafkaVersion = "2.0.0"
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
@@ -27,8 +28,14 @@ lazy val root = (project in file(".")).
       "com.typesafe.slick" %% "slick" % "3.3.0",
       "org.slf4j" % "slf4j-nop" % "1.6.4",
       "com.typesafe.slick" %% "slick-hikaricp" % "3.3.0",
-      "com.h2database" % "h2" % "1.4.187"
+      "com.h2database" % "h2" % "1.4.187",
 
+      "org.apache.kafka" %% "kafka" % kafkaVersion,
+      "org.apache.kafka" % "kafka-clients" % kafkaVersion,
+      "net.manub" %% "scalatest-embedded-kafka" % "2.0.0" % Test,
+
+
+      "com.typesafe.akka" % "akka-stream-kafka_2.12" % "1.0.4"
     )
 
 )
