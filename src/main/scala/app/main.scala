@@ -1,20 +1,21 @@
 package app
 
+import java.util.Properties
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.server.{PathMatcher, PathMatcher0}
-import crawler.PageCrawlerActor.CrawlPage
-import crawler.{AnalyzerRegistryActor, AnalyzerSupervisorActor, CrawlerQueuer, PageCrawlerActor}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.server.Directives._
+import akka.kafka.{ConsumerSettings, ProducerSettings}
+import akka.kafka.scaladsl.Producer
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.Source
+import crawler.{AnalyzerRegistryActor, CrawlerQueuer}
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer, StringSerializer}
 
 import scala.concurrent.duration._
-import akka.http.scaladsl.server.Directives._
-import akka.kafka.ConsumerSettings
-import akka.stream.ActorMaterializer
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
-
 import scala.io.StdIn
 
 object main extends App {
@@ -43,14 +44,50 @@ object main extends App {
     }
   }
 
+  val addUrlsToCrawlRoute = path("add-url") {
+    post {
+      entity(as[String]) { url =>
+        //give url to kafka producer to send to kafka
+        sendUrlToKafka(url)
+        complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+      }
+    }
+  }
+
+  val server = Http().bindAndHandle(route ~ addUrlsToCrawlRoute, "0.0.0.0", 8081)
+
   val config = system.settings.config.getConfig("akka.kafka.consumer")
 
-  val bootstrapServers = "localhost:2181"
+  val bootstrapServers = "localhost:9092"
 
   val consumerSettings =
     ConsumerSettings(config, new StringDeserializer, new ByteArrayDeserializer)
       .withBootstrapServers(bootstrapServers)
       .withGroupId("group1")
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+
+
+  StdIn.readLine() // let it run until user presses return
+  server
+    .flatMap(_.unbind()) // trigger unbinding from the port
+    .onComplete(_ ⇒ system.terminate())
+
+
+  def sendUrlToKafka(url: String): Unit = {
+    val config = system.settings.config.getConfig("akka.kafka.producer")
+    println("sending to kafka")
+    val producerSettings =
+      ProducerSettings(config, new StringSerializer, new StringSerializer)
+        .withBootstrapServers(bootstrapServers)
+
+    val topic: String = "scala-crawler.urls"
+    val s = Source(List(url)).map(value => {
+      println(value)
+      new ProducerRecord[String, String](topic, value)
+    })
+      .runWith(Producer.plainSink(producerSettings))
+      .recover({case e => println(e); throw e})
+
+  }
 
 }
