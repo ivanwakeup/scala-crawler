@@ -1,19 +1,16 @@
 package app
 
-import java.util.Properties
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
-import akka.kafka.{ConsumerSettings, ProducerSettings}
+import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
-import crawler.{AnalyzerRegistryActor, CrawlerQueuer}
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer, StringSerializer}
+import crawler.{AnalyzerRegistryActor, CrawlerQueuer, UrlConsumer}
+import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.serialization.StringSerializer
 
 import scala.concurrent.duration._
 import scala.io.StdIn
@@ -53,24 +50,17 @@ object main extends App {
       }
     }
   }
-
+  val consumer = new UrlConsumer(system)
   val server = Http().bindAndHandle(route ~ addUrlsToCrawlRoute, "0.0.0.0", 8081)
 
-  val config = system.settings.config.getConfig("akka.kafka.consumer")
-
   val bootstrapServers = "localhost:9092"
-
-  val consumerSettings =
-    ConsumerSettings(config, new StringDeserializer, new ByteArrayDeserializer)
-      .withBootstrapServers(bootstrapServers)
-      .withGroupId("group1")
-      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-
 
   StdIn.readLine() // let it run until user presses return
   server
     .flatMap(_.unbind()) // trigger unbinding from the port
     .onComplete(_ ⇒ system.terminate())
+
+
 
 
   def sendUrlToKafka(url: String): Unit = {
