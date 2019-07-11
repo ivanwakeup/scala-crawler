@@ -8,7 +8,7 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
-import crawler.{AnalyzerRegistryActor, CrawlerQueuer, UrlConsumer}
+import crawler.{AnalyzerRegistryActor, CrawlerQueuer, UrlConsumer, UrlStreamingConsumer}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
@@ -44,8 +44,7 @@ object main extends App {
   val bootstrapServers = "localhost:9092"
   val server = Http().bindAndHandle(route ~ addUrlsToCrawlRoute, "0.0.0.0", 8081)
 
-  val consumer = new Thread(new UrlConsumer(system)).start()
-
+  val consumer = new UrlStreamingConsumer(system)
 
 
   StdIn.readLine() // let it run until user presses return
