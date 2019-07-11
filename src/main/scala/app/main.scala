@@ -25,18 +25,8 @@ object main extends App {
   implicit val materializer = ActorMaterializer()
   implicit val ec = system.dispatcher
 
-  val pages: List[String] = List(
-    "https://www.regular-expressions.info/email.html",
-    "https://www.regextester.com/99232",
-    "https://docs.microsoft.com/en-us/dotnet/standard/base-types/how-to-verify-that-strings-are-in-valid-email-format"
-  )
-
-  val crawlerQ = new CrawlerQueuer(system)
-
-
   val route = path("crawl") {
     get {
-      crawlerQ.crawlUrls(pages)
       complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
     }
   }
@@ -50,17 +40,18 @@ object main extends App {
       }
     }
   }
-  val consumer = new UrlConsumer(system)
-  val server = Http().bindAndHandle(route ~ addUrlsToCrawlRoute, "0.0.0.0", 8081)
 
   val bootstrapServers = "localhost:9092"
+  val server = Http().bindAndHandle(route ~ addUrlsToCrawlRoute, "0.0.0.0", 8081)
+
+  val consumer = new Thread(new UrlConsumer(system)).start()
+
+
 
   StdIn.readLine() // let it run until user presses return
   server
     .flatMap(_.unbind()) // trigger unbinding from the port
     .onComplete(_ ⇒ system.terminate())
-
-
 
 
   def sendUrlToKafka(url: String): Unit = {

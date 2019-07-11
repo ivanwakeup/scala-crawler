@@ -10,6 +10,7 @@ class CrawlerQueuer(sys: ActorSystem) {
 
   private val registry = sys.actorOf(AnalyzerRegistryActor.props())
 
+  private val q =
   def crawlUrls(urls: Seq[String]): Unit = {
     urls.foreach { url =>
       val supProps = AnalyzerSupervisorActor.props(registry, url)
@@ -17,5 +18,7 @@ class CrawlerQueuer(sys: ActorSystem) {
       crawler ! CrawlPage(url)
     }
   }
+
+  def addUrls(urls: Seq[String])
   
 }
