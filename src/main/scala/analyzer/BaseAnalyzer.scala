@@ -14,7 +14,7 @@ abstract class BaseAnalyzer extends Actor {
   var metadata: AnalyzerMetadata = AnalyzerMetadata("NOURL")
 
   override def receive: Receive = {
-    case Analyze(bytes) => pipe(analyze(bytes)) to sender
+    case Analyze(bytes) => analyze(bytes)
     case am@AnalyzerMetadata(url) => metadata = am
   }
 

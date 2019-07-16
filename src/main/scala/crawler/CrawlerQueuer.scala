@@ -17,6 +17,4 @@ class CrawlerQueuer(sys: ActorSystem) {
       crawler ! CrawlPage(url)
     }
   }
-
-  
 }
