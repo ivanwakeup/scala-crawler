@@ -22,7 +22,7 @@ class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) {
   implicit val materializer = ActorMaterializer()
 
   val consumerSettings =
-    ConsumerSettings(kafkaConfig, new StringDeserializer, new ByteArrayDeserializer)
+    ConsumerSettings(kafkaConfig, new StringDeserializer, new StringDeserializer)
       .withBootstrapServers(bootstrapServers)
       .withGroupId(consumerGroup)
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
@@ -32,6 +32,8 @@ class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) {
 
   val stream = Consumer.plainSource(consumerSettings, Subscriptions.topics(urlTopic))
 
-  stream.runWith(Sink.foreach(println(_)))
+  private val q = new CrawlerQueuer(system)
+
+  stream.runWith(Sink.foreach(ele => {println(ele); q.crawlUrls(Seq(ele.value()))}))
 
 }

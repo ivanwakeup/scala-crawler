@@ -25,7 +25,7 @@ class PageCrawlerActor(analyzerSupervisorProps: Props) extends Actor with ActorL
   }
 
   private def crawlPage(url: String): Future[Done] = {
-
+    log.info(s"initiating crawl for $url")
     val req = HttpRequest(uri = url)
 
     val resStream: HttpResponse => Future[Done] = (res: HttpResponse) => {

@@ -29,7 +29,6 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends A
 
   /*
   how to ensure all interested actors are registered in response?
-
    */
   override def preStart(): Unit = {
     log.debug(s"total of ${analyzers.size} on initialization")
@@ -41,7 +40,6 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends A
       })
       log.debug(s"${analyzers.size} analyzers now available")
     }
-
   }
 
   override def receive: Receive = {
