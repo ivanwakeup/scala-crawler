@@ -3,7 +3,7 @@ package analyzer
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.OverflowStrategy
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
 import app.main.{bootstrapServers, system}
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -18,23 +18,14 @@ class HtmlAccumulator extends BaseAnalyzer {
     ProducerSettings(config, new StringSerializer, new StringSerializer)
       .withBootstrapServers(bootstrapServers)
 
-  //how do we ship each incoming byteString to the flow?
-  val s = Source(List(metadata.url)).map(value => {
-    println(value)
-    new ProducerRecord[String, String](topic, value)
-  })
-    .runWith(Producer.plainSink(producerSettings))
-    .recover({case e => throw e})
-
   val q = Source.queue[String](100, OverflowStrategy.backpressure)
-    .map
+    .map {ele => new ProducerRecord[String, String](metadata.url, ele)}
+      .recover({case e => throw e})
+    .toMat(Producer.plainSink(producerSettings))(Keep.left)
+    .run()
+
   override def analyze(bytes: ByteString): Future[Unit] = {
-    persistBytes(bytes)
-    Future.successful()
-  }
-
-  def persistBytes(bytes: ByteString): Unit = {
-
+    q.offer(bytes.utf8String).flatMap(_ => Future.successful())
   }
 
 }
