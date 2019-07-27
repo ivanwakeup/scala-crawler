@@ -1,13 +1,12 @@
 package analyzer
 
-import akka.{Done, NotUsed}
 import akka.actor.{ActorSystem, Props}
-import akka.kafka.{ProducerMessage, ProducerSettings}
+import akka.kafka.ProducerMessage.MultiResultPart
 import akka.kafka.scaladsl.Producer
+import akka.kafka.{ProducerMessage, ProducerSettings}
+import akka.stream.scaladsl.{Keep, Sink, Source}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
-import akka.stream.scaladsl.{Keep, Sink, Source, SourceQueueWithComplete}
 import akka.util.ByteString
-import app.main.bootstrapServers
 import com.typesafe.config.ConfigFactory
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -18,20 +17,42 @@ class HtmlAccumulator(system: ActorSystem) extends BaseAnalyzer {
 
   implicit val mat = ActorMaterializer()(system)
 
-  println("accumulator started")
+  val conf = ConfigFactory.load()
 
-  val config = ConfigFactory.load().getConfig("akka.kafka.producer")
-  val producerSettings =
-    ProducerSettings(config, new StringSerializer, new StringSerializer)
-      .withBootstrapServers(bootstrapServers)
+  val kafkaConfig = conf.getConfig("akka.kafka.producer")
+
+  val crawlerConfig = conf.getConfig("crawler")
+
+  val producerSettings: ProducerSettings[String, String] =
+    ProducerSettings(kafkaConfig, new StringSerializer, new StringSerializer)
+      .withBootstrapServers("localhost:9092")
+
+  private val crawledUrlTopic = crawlerConfig.getString("crawled-result-topic")
 
   val q = Source.queue[String](100, OverflowStrategy.backpressure)
-    .map {ele => new ProducerRecord[String, String](metadata.url, ele)}
-    .recover({case e => throw e})
-    .to(Producer.plainSink(producerSettings))
+    .map {ele => ProducerMessage.single(
+      new ProducerRecord[String, String](crawledUrlTopic, metadata.url, ele)
+    )}
+      .via(Producer.flexiFlow(producerSettings))
+      .map{
+        case ProducerMessage.Result(metadata, ProducerMessage.Message(record, passThrough)) =>
+          s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
+
+        case ProducerMessage.MultiResult(parts, passThrough) =>
+          parts
+            .map {
+              case MultiResultPart(metadata, record) =>
+                s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
+            }
+            .mkString(", ")
+
+        case ProducerMessage.PassThroughResult(passThrough) =>
+          s"passed through"
+      }.recover({case e=> throw e}).to(Sink.ignore)
     .run()
 
   override def analyze(bytes: ByteString): Future[Unit] = {
+    //could we get out of order html here? the q.offer returns a future.
     q.offer(bytes.utf8String).flatMap(res  => {println(res); Future.successful()})
   }
 
