@@ -34,6 +34,6 @@ class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) {
 
   private val q = new CrawlerQueuer(system)
 
-  stream.runWith(Sink.foreach(ele => {println(ele); q.crawlUrls(Seq(ele.value()))}))
+  stream.runWith(Sink.foreach(ele => {q.crawlUrls(Seq(ele.value()))}))
 
 }

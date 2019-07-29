@@ -25,13 +25,8 @@ object main extends App {
   implicit val materializer = ActorMaterializer()
   implicit val ec = system.dispatcher
 
-  val route = path("crawl") {
-    get {
-      complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
-    }
-  }
 
-  val addUrlsToCrawlRoute = path("add-url") {
+  val route = path("add-url") {
     post {
       entity(as[String]) { url =>
         //give url to kafka producer to send to kafka
@@ -42,7 +37,7 @@ object main extends App {
   }
 
   val bootstrapServers = "localhost:9092"
-  val server = Http().bindAndHandle(route ~ addUrlsToCrawlRoute, "0.0.0.0", 8081)
+  val server = Http().bindAndHandle(route, "0.0.0.0", 8081)
 
   val consumer = new UrlStreamingConsumer(system)
 
@@ -52,22 +47,5 @@ object main extends App {
     .flatMap(_.unbind()) // trigger unbinding from the port
     .onComplete(_ ⇒ system.terminate())
 
-
-  def sendUrlToKafka(url: String): Unit = {
-    val config = system.settings.config.getConfig("akka.kafka.producer")
-    println("sending to kafka")
-    val producerSettings =
-      ProducerSettings(config, new StringSerializer, new StringSerializer)
-        .withBootstrapServers(bootstrapServers)
-
-    val topic: String = "scala-crawler.urls"
-    val s = Source(List(url)).map(value => {
-      println(value)
-      new ProducerRecord[String, String](topic, value)
-    })
-      .runWith(Producer.plainSink(producerSettings))
-      .recover({case e => println(e); throw e})
-
-  }
 
 }
