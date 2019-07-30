@@ -1,15 +1,14 @@
-package crawler
+package crawler.messaging
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern.ask
+import akka.pattern.{ask, _}
 import akka.util.{ByteString, Timeout}
-import analyzer.BaseAnalyzer.{Analyze, AnalyzerMetadata}
-import crawler.AnalyzerRegistryActor.GetAnalyzers
-import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
+import crawler.analysis.BaseAnalyzer.{Analyze, AnalyzerMetadata}
+import crawler.messaging.AnalyzerRegistryActor.GetAnalyzers
+import crawler.messaging.AnalyzerSupervisorActor.Distribute
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import akka.pattern._
 
 /*
 we want this actor to:

@@ -1,23 +1,26 @@
-package kafka
+package crawler.messaging
 
+import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
+import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
-import app.main.{bootstrapServers, system}
-import com.typesafe.config.Config
+import crawler.conf.{ConfigSupport, KafkaConfigSupport}
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
-class KafkaUrlProducer(kafkaConfig: Config) {
 
-  private val adminClient = AdminClient.create(kafkaConfig.entrySet().)
+class KafkaUrlProducer()(implicit system: ActorSystem) extends KafkaConfigSupport {
+
+  private val adminClient = AdminClient.create(kafkaSettings)
+  private implicit val materializer = ActorMaterializer()
+  private implicit val ec = system.dispatcher
 
   def sendUrlToKafka(url: String): Unit = {
-    val config = system.settings.config.getConfig("akka.kafka.producer")
     val producerSettings =
-      ProducerSettings(config, new StringSerializer, new StringSerializer)
-        .withBootstrapServers(bootstrapServers)
+      ProducerSettings(kafkaProducerConfig, new StringSerializer, new StringSerializer)
+        .withBootstrapServers(kafkaSettings.getProperty("bootstrap.servers"))
 
     val topic: String = "scala-crawler.urls"
     val s = Source(List(url)).map(value => {

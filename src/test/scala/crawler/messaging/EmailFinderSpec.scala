@@ -1,10 +1,10 @@
-package crawler
+package crawler.messaging
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import akka.util.ByteString
-import analyzer.BaseAnalyzer.Analyze
-import analyzer.EmailFinder
+import crawler.analysis.BaseAnalyzer.Analyze
+import crawler.analysis.EmailFinder
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{FlatSpecLike, Matchers}
 

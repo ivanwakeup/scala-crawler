@@ -1,4 +1,4 @@
-package crawler
+package crawler.messaging
 
 import akka.Done
 import akka.actor.{Actor, ActorLogging, Props}
@@ -6,8 +6,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import crawler.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
-import crawler.PageCrawlerActor.CrawlPage
+import crawler.messaging.AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
+import crawler.messaging.PageCrawlerActor.CrawlPage
 
 import scala.concurrent.Future
 import scala.concurrent.duration._

@@ -1,7 +1,7 @@
-package crawler
+package crawler.messaging
 
 import akka.actor.ActorSystem
-import crawler.PageCrawlerActor.CrawlPage
+import crawler.messaging.PageCrawlerActor.CrawlPage
 
 /*
 queues up urls to be crawled

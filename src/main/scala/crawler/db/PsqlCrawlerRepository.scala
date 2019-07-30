@@ -1,4 +1,5 @@
-package services
+package crawler.db
+
 import slick.jdbc.H2Profile.api._
 
 import scala.concurrent.{ExecutionContext, Future}

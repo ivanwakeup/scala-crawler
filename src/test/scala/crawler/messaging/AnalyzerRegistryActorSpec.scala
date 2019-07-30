@@ -1,10 +1,10 @@
-package crawler
+package crawler.messaging
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import crawler.AnalyzerRegistryActor.GetAnalyzers
+import crawler.messaging.AnalyzerRegistryActor.GetAnalyzers
 import org.scalatest.AsyncFlatSpecLike
 
 import scala.concurrent.duration._

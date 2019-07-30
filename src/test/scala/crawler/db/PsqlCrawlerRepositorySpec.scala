@@ -1,4 +1,4 @@
-package services
+package crawler.db
 
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
 import slick.jdbc.H2Profile.api._

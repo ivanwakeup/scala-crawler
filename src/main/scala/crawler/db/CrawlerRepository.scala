@@ -1,4 +1,4 @@
-package services
+package crawler.db
 
 import scala.concurrent.Future
 

@@ -1,11 +1,10 @@
-package analyzer
+package crawler.analysis
 
 import akka.actor.Actor
 import akka.util.ByteString
-import analyzer.BaseAnalyzer.{AnalyzerMetadata, Analyze}
+import crawler.analysis.BaseAnalyzer.{Analyze, AnalyzerMetadata}
 
 import scala.concurrent.Future
-import akka.pattern.pipe
 
 abstract class BaseAnalyzer extends Actor {
 

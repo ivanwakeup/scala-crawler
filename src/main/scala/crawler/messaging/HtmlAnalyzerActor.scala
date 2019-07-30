@@ -1,16 +1,17 @@
-package crawler
+package crawler.messaging
 
 import akka.actor.{Actor, ActorLogging, Props}
-import crawler.HtmlAnalyzerActor.Analyze
-import services.{CrawlData, CrawlerRepository}
+import crawler.analysis.BaseAnalyzer.Analyze
+import crawler.db.{CrawlData, CrawlerRepository}
 
 import scala.collection.mutable.ListBuffer
 
 class HtmlAnalyzerActor(crawlerRepository: CrawlerRepository) extends Actor with ActorLogging {
 
   override def receive: Receive = {
+
     case Analyze(htmlString) => {
-      val emailResult = findEmails(htmlString)
+      val emailResult = findEmails(htmlString.utf8String)
       emailResult.foreach({
         emails => emails.map{email => println(email); crawlerRepository.insert(CrawlData(email, "someurl.com"))}
       })

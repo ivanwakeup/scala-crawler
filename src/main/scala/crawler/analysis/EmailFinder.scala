@@ -1,4 +1,5 @@
-package analyzer
+package crawler.analysis
+
 import akka.actor.Props
 import akka.util.ByteString
 

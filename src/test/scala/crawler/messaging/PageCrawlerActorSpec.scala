@@ -1,11 +1,10 @@
-package crawler
+package crawler.messaging
 
 import akka.Done
-import akka.actor.ActorSystem
+import akka.actor.{Actor, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import crawler.PageCrawlerActor.CrawlPage
+import crawler.messaging.PageCrawlerActor.CrawlPage
 import org.scalatest.FlatSpecLike
-import utils.TestReceiver
 
 
 class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
@@ -24,5 +23,18 @@ class PageCrawlerActorSpec extends TestKit(ActorSystem("test"))
     }
   }
 
+}
+
+class TestReceiver extends Actor {
+
+  override def receive: Receive = {
+    case _ => sender() ! Done
+  }
+
+}
+object TestReceiver {
+  def props(): Props = {
+    Props(classOf[TestReceiver])
+  }
 }
 

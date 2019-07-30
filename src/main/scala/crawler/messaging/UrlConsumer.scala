@@ -1,4 +1,4 @@
-package crawler
+package crawler.messaging
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -7,7 +7,6 @@ import java.util.Properties
 
 import akka.actor.ActorSystem
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import java.util
 
 class UrlConsumer(system: ActorSystem) extends Runnable {
 

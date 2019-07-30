@@ -1,9 +1,9 @@
-package crawler
+package crawler.messaging
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.ByteString
-import crawler.AnalyzerSupervisorActor.Distribute
+import crawler.messaging.AnalyzerSupervisorActor.Distribute
 import org.scalatest.FlatSpecLike
 
 

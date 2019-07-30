@@ -1,10 +1,10 @@
-package analyzer
+package crawler.analysis
 
 import akka.actor.{ActorSystem, Props}
 import akka.kafka.ProducerMessage.MultiResultPart
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
-import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
