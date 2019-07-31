@@ -5,6 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import crawler.messaging.KafkaUrlProducer.UrlMessage
 import crawler.messaging.{AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer}
 
 import scala.concurrent.duration._
@@ -21,14 +22,14 @@ object main extends App {
   implicit val ec = system.dispatcher
 
 
-  val urlProducer = new KafkaUrlProducer
+  val urlProducer = KafkaUrlProducer.actorSourceNoAck()
   val consumer = new UrlStreamingConsumer(system)
 
   val route = path("add-url") {
     post {
       entity(as[String]) { url =>
         //give url to kafka producer to send to kafka
-        urlProducer.sendUrlToKafka(url)
+        urlProducer ! UrlMessage(url)
         complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
       }
     }

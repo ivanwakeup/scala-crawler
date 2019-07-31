@@ -5,7 +5,6 @@ import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import com.typesafe.config.ConfigFactory
 import crawler.conf.KafkaConfigSupport
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
