@@ -25,3 +25,12 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: kafka:9092
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 30000
 
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry
+    hostname: schema-registry
+    links:
+      - kafka
+    ports: 
+      - 8181:8181
+
