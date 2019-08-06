@@ -35,7 +35,10 @@ lazy val root = (project in file(".")).
       "net.manub" %% "scalatest-embedded-kafka" % "2.0.0" % Test,
 
 
-      "com.typesafe.akka" % "akka-stream-kafka_2.12" % "1.0.4"
+      "com.typesafe.akka" % "akka-stream-kafka_2.12" % "1.0.4",
+
+      "io.confluent" % "kafka-schema-registry-client" % "5.0.0",
+      "io.confluent" % "kafka-avro-serializer" % "5.0.0"
     )
 
 )

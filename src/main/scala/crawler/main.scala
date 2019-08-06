@@ -13,8 +13,6 @@ import scala.concurrent.duration._
 import scala.io.StdIn
 import spray.json._
 
-case class UrlPayload(depth: Int, url: String)
-
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val urlPayloadFormat = jsonFormat2(UrlPayload)
 }
