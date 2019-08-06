@@ -6,8 +6,8 @@ import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
-import crawler.UrlPayload
 import crawler.conf.KafkaConfigSupport
+import crawler.data.UrlPayload
 import crawler.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -41,14 +41,14 @@ class KafkaUrlProducer private()(implicit system: ActorSystem) extends KafkaConf
   private def kafkaSourceAck: Source[ProducerMessage.Envelope[String, String, NotUsed], ActorRef] = {
     Source.actorRefWithAck[KafkaUrlPayloadMessage]("ack").map(message => {
       ProducerMessage.single(
-        new ProducerRecord[String, String](urlTopic, message.url))
+        new ProducerRecord[String, String](urlTopic, message.url.url))
     })
   }
 
   private def kafkaSourceNoAck: Source[ProducerMessage.Envelope[String, String, NotUsed], ActorRef] = {
     Source.actorRef[KafkaUrlPayloadMessage](100, OverflowStrategy.dropTail).map(message => {
       ProducerMessage.single(
-        new ProducerRecord[String, String](urlTopic, message.url))
+        new ProducerRecord[String, String](urlTopic, message.url.url))
     })
   }
 
