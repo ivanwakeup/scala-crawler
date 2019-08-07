@@ -13,7 +13,7 @@ import scala.concurrent.duration._
 import scala.io.StdIn
 
 
-object main extends App with CrawlerJsonSupport {
+object main extends App with CrawlerBootstrap with CrawlerJsonSupport {
 
   implicit val system = ActorSystem("crawler-sys")
   implicit val timeout = 5.seconds

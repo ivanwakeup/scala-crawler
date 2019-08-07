@@ -20,3 +20,7 @@ trait KafkaConfigSupport extends ConfigSupport {
   })
 
 }
+
+trait SchemaRegistryConfigSupport extends ConfigSupport {
+  val conf = baseConfig.getConfig("schema-registry")
+}

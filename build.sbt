@@ -38,7 +38,8 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka" % "akka-stream-kafka_2.12" % "1.0.4",
 
       "io.confluent" % "kafka-schema-registry-client" % "5.0.0",
-      "io.confluent" % "kafka-avro-serializer" % "5.0.0"
+      "io.confluent" % "kafka-avro-serializer" % "5.0.0",
+      "com.sksamuel.avro4s" %% "avro4s-core" % "3.0.0-RC3"
     )
 
 )
