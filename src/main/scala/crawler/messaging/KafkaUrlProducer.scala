@@ -6,21 +6,24 @@ import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
+import crawler.CrawlerBootstrap
 import crawler.conf.KafkaConfigSupport
 import crawler.data.UrlPayload
 import crawler.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
+import io.confluent.kafka.serializers.KafkaAvroSerializer
+import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 
 
-class KafkaUrlProducer private()(implicit system: ActorSystem) extends KafkaConfigSupport {
+class KafkaUrlProducer private()(implicit system: ActorSystem) extends KafkaConfigSupport with CrawlerBootstrap {
 
   private implicit val materializer = ActorMaterializer()
   private implicit val ec = system.dispatcher
 
   private val urlTopic = crawlerConfig.getString("url-topic")
   private val producerSettings =
-    ProducerSettings(kafkaProducerConfig, new StringSerializer, new StringSerializer)
+    ProducerSettings(kafkaProducerConfig, new StringSerializer, new KafkaAvroSerializer)
       .withBootstrapServers(kafkaSettings.getProperty("bootstrap.servers"))
 
   private def actorSourceAck: ActorRef = {
@@ -38,17 +41,17 @@ class KafkaUrlProducer private()(implicit system: ActorSystem) extends KafkaConf
       .run()
   }
 
-  private def kafkaSourceAck: Source[ProducerMessage.Envelope[String, String, NotUsed], ActorRef] = {
+  private def kafkaSourceAck: Source[ProducerMessage.Envelope[String, GenericRecord, NotUsed], ActorRef] = {
     Source.actorRefWithAck[KafkaUrlPayloadMessage]("ack").map(message => {
       ProducerMessage.single(
-        new ProducerRecord[String, String](urlTopic, message.url.url))
+        new ProducerRecord[String, GenericRecord](urlTopic, new GenericData.Record(urlPayloadSchema)))
     })
   }
 
-  private def kafkaSourceNoAck: Source[ProducerMessage.Envelope[String, String, NotUsed], ActorRef] = {
+  private def kafkaSourceNoAck: Source[ProducerMessage.Envelope[String, GenericRecord, NotUsed], ActorRef] = {
     Source.actorRef[KafkaUrlPayloadMessage](100, OverflowStrategy.dropTail).map(message => {
       ProducerMessage.single(
-        new ProducerRecord[String, String](urlTopic, message.url.url))
+        new ProducerRecord[String, GenericRecord](urlTopic, new GenericData.Record(urlPayloadSchema)))
     })
   }
 
