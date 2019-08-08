@@ -10,6 +10,7 @@ trait CrawlerBootstrap extends SchemaRegistryConfigSupport {
 
   val urlPayloadSchema = AvroSchema[UrlPayload]
 
+
   val client = new CachedSchemaRegistryClient(conf.getString("schema.registry.url"), 1000)
 
   client.register("url-payload", urlPayloadSchema)
