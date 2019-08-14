@@ -4,12 +4,9 @@ import java.util.Properties
 
 import com.typesafe.config.{Config, ConfigFactory}
 
-sealed trait ConfigSupport {
+trait ConfigSupport {
    val baseConfig: Config = ConfigFactory.load()
    val crawlerConfig = baseConfig.getConfig("crawler")
-}
-
-trait KafkaConfigSupport extends ConfigSupport {
 
   val kafkaProducerConfig: Config = baseConfig.getConfig("akka.kafka.producer")
   val kafkaConsumerConfig: Config = baseConfig.getConfig("akka.kafka.consumer")
@@ -19,8 +16,11 @@ trait KafkaConfigSupport extends ConfigSupport {
     entry => kafkaSettings.setProperty(entry.getKey, entry.getValue.unwrapped().toString)
   })
 
-}
+  val schemaRegConfig = baseConfig.getConfig("schema-registry")
 
-trait SchemaRegistryConfigSupport extends ConfigSupport {
-  val conf = baseConfig.getConfig("schema-registry")
+  var schemaRegistrySettings: Map[String, String] = Map()
+  schemaRegConfig.entrySet().forEach({
+    entry => schemaRegistrySettings += (entry.getKey -> entry.getValue.unwrapped().toString)
+  })
+
 }

@@ -5,11 +5,11 @@ import akka.kafka.scaladsl.Consumer
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import crawler.conf.KafkaConfigSupport
+import crawler.conf.{ConfigSupport}
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 
-class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) extends KafkaConfigSupport {
+class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) extends ConfigSupport {
 
   val urlTopic = crawlerConfig.getString("url-topic")
   val consumerGroup = crawlerConfig.getString("url-consumer-group")

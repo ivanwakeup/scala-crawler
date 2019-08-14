@@ -5,15 +5,17 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import crawler.data.{CrawlerJsonSupport, UrlPayload}
+import crawler.conf.ConfigSupport
+import crawler.data.UrlPayload
 import crawler.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
 import crawler.messaging.{AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer}
 
 import scala.concurrent.duration._
 import scala.io.StdIn
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 
 
-object main extends App with CrawlerBootstrap with CrawlerJsonSupport {
+object main extends App with ConfigSupport with SprayJsonSupport {
 
   implicit val system = ActorSystem("crawler-sys")
   implicit val timeout = 5.seconds
@@ -27,6 +29,7 @@ object main extends App with CrawlerBootstrap with CrawlerJsonSupport {
   val urlProducer = KafkaUrlProducer.actorSourceNoAck()
   val consumer = new UrlStreamingConsumer(system)
 
+  import UrlPayload.jsonFormat
 
   val route = path("add-url") {
     post {
