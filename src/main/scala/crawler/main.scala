@@ -2,18 +2,17 @@ package crawler
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity }
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import crawler.conf.ConfigSupport
 import crawler.data.UrlPayload
 import crawler.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
-import crawler.messaging.{AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer}
+import crawler.messaging.{ AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer }
 
 import scala.concurrent.duration._
 import scala.io.StdIn
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-
 
 object main extends App with ConfigSupport with SprayJsonSupport {
 
@@ -24,7 +23,6 @@ object main extends App with ConfigSupport with SprayJsonSupport {
 
   implicit val materializer = ActorMaterializer()
   implicit val ec = system.dispatcher
-
 
   val urlProducer = KafkaUrlProducer.actorSourceNoAck()
   val consumer = new UrlStreamingConsumer(system)
@@ -49,8 +47,5 @@ object main extends App with ConfigSupport with SprayJsonSupport {
     .flatMap(_.unbind())
     .onComplete(_ ⇒ system.terminate())
 
-
 }
-
-
 

@@ -12,7 +12,7 @@ class EmailFinder extends BaseAnalyzer {
 
   override def analyze(bytes: ByteString): Future[Unit] = {
     val emails = EmailFinder.EMAIL_REGEX.findAllIn(bytes.utf8String)
-    while(emails.hasNext) {
+    while (emails.hasNext) {
       val nxtEmail = emails.next()
       emailSet += nxtEmail
       println(s"found email $nxtEmail at ${metadata.url}")

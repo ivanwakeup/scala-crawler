@@ -2,6 +2,13 @@
 lazy val akkaHttpVersion = "10.1.8"
 lazy val akkaVersion    = "2.5.21"
 lazy val kafkaVersion = "2.0.0"
+lazy val confluentVersion = "5.2.1"
+lazy val jacksonVersion = "2.9.5"
+
+
+val confluent: Seq[ModuleID] = Seq("io.confluent" % "kafka-schema-registry-client" % confluentVersion,
+  "io.confluent" % "kafka-avro-serializer" % confluentVersion)
+
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
@@ -9,6 +16,11 @@ lazy val root = (project in file(".")).
       scalaVersion    := "2.12.7"
     )),
     name := "scala-crawler",
+    resolvers += Resolver.mavenLocal,
+    resolvers += "Scalaz Bintray Repo" at "https://dl.bintray.com/scalaz/releases",
+    resolvers += "Confluent Maven Repo" at "http://packages.confluent.io/maven/",
+    resolvers += "jitpack" at "https://jitpack.io",
+    resolvers += Resolver.bintrayRepo("hseeberger", "maven"),
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
@@ -36,10 +48,8 @@ lazy val root = (project in file(".")).
 
 
       "com.typesafe.akka" % "akka-stream-kafka_2.12" % "1.0.4",
-
-      "io.confluent" % "kafka-schema-registry-client" % "5.0.0",
-      "io.confluent" % "kafka-avro-serializer" % "5.0.0",
-      "com.sksamuel.avro4s" %% "avro4s-core" % "3.0.0-RC3"
-    )
+      "com.sksamuel.avro4s" %% "avro4s-core" % "3.0.0-RC3",
+    ),
+    libraryDependencies ++= confluent
 
 )

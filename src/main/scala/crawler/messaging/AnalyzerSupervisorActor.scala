@@ -1,9 +1,9 @@
 package crawler.messaging
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern.{ask, _}
-import akka.util.{ByteString, Timeout}
-import crawler.analysis.BaseAnalyzer.{Analyze, AnalyzerMetadata}
+import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
+import akka.pattern.{ ask, _ }
+import akka.util.{ ByteString, Timeout }
+import crawler.analysis.BaseAnalyzer.{ Analyze, AnalyzerMetadata }
 import crawler.messaging.AnalyzerRegistryActor.GetAnalyzers
 import crawler.messaging.AnalyzerSupervisorActor.Distribute
 
@@ -23,7 +23,6 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends A
   implicit val ec = context.dispatcher
   implicit val timeout = Timeout(5.seconds)
 
-
   private var analyzers: Seq[ActorRef] = Seq()
 
   /*
@@ -33,7 +32,7 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends A
     log.debug(s"total of ${analyzers.size} on initialization")
     (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistryActor.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
-        val nextAnalyzer:ActorRef = context.actorOf(props)
+        val nextAnalyzer: ActorRef = context.actorOf(props)
         nextAnalyzer ! AnalyzerMetadata(url)
         analyzers = analyzers :+ nextAnalyzer
       })

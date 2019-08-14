@@ -2,7 +2,7 @@ package crawler.analysis
 
 import akka.actor.Actor
 import akka.util.ByteString
-import crawler.analysis.BaseAnalyzer.{Analyze, AnalyzerMetadata}
+import crawler.analysis.BaseAnalyzer.{ Analyze, AnalyzerMetadata }
 
 import scala.concurrent.Future
 
@@ -14,9 +14,8 @@ abstract class BaseAnalyzer extends Actor {
 
   override def receive: Receive = {
     case Analyze(bytes) => analyze(bytes)
-    case am@AnalyzerMetadata(url) => metadata = am
+    case am @ AnalyzerMetadata(url) => metadata = am
   }
-
 
   def analyze(bytes: ByteString): Future[Unit] = {
     Future.successful()

@@ -10,7 +10,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 
 class UrlConsumer(system: ActorSystem) extends Runnable {
 
-
   val config = system.settings.config.getConfig("akka.kafka.consumer")
   val urlTopic = system.settings.config.getConfig("crawler").getString("url-topic")
   val bootstrapServers = "localhost:9092"

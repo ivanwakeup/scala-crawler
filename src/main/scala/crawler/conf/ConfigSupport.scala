@@ -2,11 +2,11 @@ package crawler.conf
 
 import java.util.Properties
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 
 trait ConfigSupport {
-   val baseConfig: Config = ConfigFactory.load()
-   val crawlerConfig = baseConfig.getConfig("crawler")
+  val baseConfig: Config = ConfigFactory.load()
+  val crawlerConfig = baseConfig.getConfig("crawler")
 
   val kafkaProducerConfig: Config = baseConfig.getConfig("akka.kafka.producer")
   val kafkaConsumerConfig: Config = baseConfig.getConfig("akka.kafka.consumer")

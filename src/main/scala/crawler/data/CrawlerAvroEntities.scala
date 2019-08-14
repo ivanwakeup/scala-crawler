@@ -1,8 +1,8 @@
 package crawler.data
 
-import com.sksamuel.avro4s.{AvroName, AvroNamespace, AvroSchema, RecordFormat}
+import com.sksamuel.avro4s.{ AvroName, AvroNamespace, AvroSchema, RecordFormat }
 import org.apache.avro.Schema
-import spray.json.{DefaultJsonProtocol, RootJsonFormat}
+import spray.json.{ DefaultJsonProtocol, RootJsonFormat }
 
 sealed trait AvroEntity[T] {
   //has a way to build an avro schema from a case class
