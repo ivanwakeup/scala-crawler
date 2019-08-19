@@ -2,8 +2,7 @@ package crawler.messaging
 
 import akka.actor.ActorSystem
 import akka.kafka.scaladsl.Consumer
-import akka.kafka.{ ConsumerSettings, Subscriptions }
-import akka.remote.serialization.StringSerializer
+import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
 import crawler.conf.ConfigSupport
@@ -12,7 +11,8 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.serialization.{ Deserializer, StringDeserializer }
+import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer}
+
 import scala.collection.JavaConverters.mapAsJavaMap
 
 class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) extends ConfigSupport {
