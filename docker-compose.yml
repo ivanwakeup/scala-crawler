@@ -37,3 +37,10 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
 
+    
+  scala-crawler:
+    image: scala-crawler:0.1.0-SNAPSHOT
+    hostname: scala-crawler
+    ports:
+      - 8081:8081
+

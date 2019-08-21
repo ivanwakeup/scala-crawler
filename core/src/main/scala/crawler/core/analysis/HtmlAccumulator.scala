@@ -1,11 +1,11 @@
 package crawler.core.analysis
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ ActorSystem, Props }
 import akka.kafka.ProducerMessage.MultiResultPart
 import akka.kafka.scaladsl.Producer
-import akka.kafka.{ProducerMessage, ProducerSettings}
-import akka.stream.scaladsl.{Sink, Source}
-import akka.stream.{ActorMaterializer, OverflowStrategy}
+import akka.kafka.{ ProducerMessage, ProducerSettings }
+import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.{ ActorMaterializer, OverflowStrategy }
 import akka.util.ByteString
 import crawler.core.conf.ConfigSupport
 import org.apache.kafka.clients.producer.ProducerRecord

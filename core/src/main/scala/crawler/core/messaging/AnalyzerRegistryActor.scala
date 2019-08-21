@@ -1,8 +1,8 @@
 package crawler.core.messaging
 
-import akka.actor.{Actor, ActorLogging, Props}
-import crawler.core.analysis.{EmailFinder, HtmlAccumulator}
-import crawler.core.messaging.AnalyzerRegistryActor.{AnalyzersResponse, GetAnalyzers}
+import akka.actor.{ Actor, ActorLogging, Props }
+import crawler.core.analysis.{ EmailFinder, HtmlAccumulator }
+import crawler.core.messaging.AnalyzerRegistryActor.{ AnalyzersResponse, GetAnalyzers }
 
 class AnalyzerRegistryActor extends Actor with ActorLogging {
 

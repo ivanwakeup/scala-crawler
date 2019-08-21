@@ -3,12 +3,12 @@ package crawler.web
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity }
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
-import crawler.core.messaging.{AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer}
+import crawler.core.messaging.{ AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer }
 import crawler.core.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
 
 import scala.concurrent.duration._
@@ -25,7 +25,7 @@ object main extends App with ConfigSupport with SprayJsonSupport {
   implicit val ec = system.dispatcher
 
   val urlProducer = KafkaUrlProducer.actorSourceNoAck()
-  val consumer = new UrlStreamingConsumer(system)
+  //val consumer = new UrlStreamingConsumer(system)
 
   val route = path("add-url") {
     post {
@@ -40,10 +40,10 @@ object main extends App with ConfigSupport with SprayJsonSupport {
   val server = Http().bindAndHandle(route, "0.0.0.0", 8081)
 
   //return triggers app shutdown
-  StdIn.readLine()
-  server
-    .flatMap(_.unbind())
-    .onComplete(_ ⇒ system.terminate())
+  //  StdIn.readLine()
+  //  server
+  //    .flatMap(_.unbind())
+  //    .onComplete(_ ⇒ system.terminate())
 
 }
 

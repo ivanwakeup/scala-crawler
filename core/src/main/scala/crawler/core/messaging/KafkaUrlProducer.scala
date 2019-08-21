@@ -1,11 +1,11 @@
 package crawler.core.messaging
 
 import akka.NotUsed
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.kafka.scaladsl.Producer
-import akka.kafka.{ProducerMessage, ProducerSettings}
-import akka.stream.scaladsl.{Sink, Source}
-import akka.stream.{ActorMaterializer, OverflowStrategy}
+import akka.kafka.{ ProducerMessage, ProducerSettings }
+import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.{ ActorMaterializer, OverflowStrategy }
 import com.sksamuel.avro4s.Record
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
@@ -14,7 +14,7 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.{Serializer, StringSerializer}
+import org.apache.kafka.common.serialization.{ Serializer, StringSerializer }
 
 import collection.JavaConverters.mapAsJavaMap
 
