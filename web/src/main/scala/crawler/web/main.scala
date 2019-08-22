@@ -8,11 +8,10 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
-import crawler.core.messaging.{ AnalyzerRegistryActor, KafkaUrlProducer, UrlStreamingConsumer }
 import crawler.core.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
+import crawler.core.messaging.{ AnalyzerRegistryActor, KafkaUrlProducer }
 
 import scala.concurrent.duration._
-import scala.io.StdIn
 
 object main extends App with ConfigSupport with SprayJsonSupport {
 
