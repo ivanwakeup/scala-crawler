@@ -1,20 +1,20 @@
 package crawler.core.messaging
 
 import akka.NotUsed
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.{ActorRef, ActorSystem}
 import akka.kafka.scaladsl.Producer
-import akka.kafka.{ ProducerMessage, ProducerSettings }
-import akka.stream.scaladsl.{ Sink, Source }
-import akka.stream.{ ActorMaterializer, OverflowStrategy }
+import akka.kafka.{ProducerMessage, ProducerSettings}
+import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.{ActorMaterializer, OverflowStrategy}
 import com.sksamuel.avro4s.Record
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
-import crawler.core.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
+import crawler.core.messaging.KafkaUrlProducer.{KafkaUrlPayloadMessage, KafkaUrlProducedAck}
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.{ Serializer, StringSerializer }
+import org.apache.kafka.common.serialization.{Serializer, StringSerializer}
 
 import collection.JavaConverters.mapAsJavaMap
 
@@ -51,7 +51,7 @@ class KafkaUrlProducer private ()(implicit system: ActorSystem)
   }
 
   private def kafkaSourceAck: Source[ProducerMessage.Envelope[String, GenericRecord, NotUsed], ActorRef] = {
-    Source.actorRefWithAck[KafkaUrlPayloadMessage]("ack").map(message => {
+    Source.actorRefWithAck[KafkaUrlPayloadMessage](KafkaUrlProducedAck).map(message => {
       val gr: Record = UrlPayload.format.to(message.urlPayload)
       ProducerMessage.single(
         new ProducerRecord[String, GenericRecord](urlTopic, gr))
@@ -72,8 +72,6 @@ object KafkaUrlProducer {
 
   case class KafkaUrlPayloadMessage(urlPayload: UrlPayload)
 
-  case object KafkaUrlAck
-
   def actorSourceAck()(implicit system: ActorSystem): ActorRef = {
     val producer = new KafkaUrlProducer()(system)
     producer.actorSourceAck
@@ -83,6 +81,8 @@ object KafkaUrlProducer {
     val producer = new KafkaUrlProducer()(system)
     producer.actorSourceNoAck
   }
+
+  case object KafkaUrlProducedAck
 
 }
 

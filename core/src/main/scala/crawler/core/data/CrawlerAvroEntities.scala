@@ -19,9 +19,9 @@ sealed trait CrawlerAvroEntity[T] extends AvroEntity[T] with CrawlerEntity[T]
 
 @AvroName("UrlPayload")
 @AvroNamespace("scala-crawler")
-case class UrlPayload(depth: Int, url: String)
+case class UrlPayload(depth: Int, url: String, ack: Option[Boolean])
 object UrlPayloadProtocol extends DefaultJsonProtocol {
-  val jsonFormat = jsonFormat2(UrlPayload.apply)
+  val jsonFormat = jsonFormat3(UrlPayload.apply)
 }
 
 object UrlPayload extends CrawlerAvroEntity[UrlPayload] {
