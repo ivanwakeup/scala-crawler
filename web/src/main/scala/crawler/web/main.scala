@@ -36,7 +36,7 @@ object main extends App with ConfigSupport with SprayJsonSupport {
     }
   }
 
-  val server = Http().bindAndHandle(route, "0.0.0.0", 8081)
+  val server = Http().bindAndHandle(route, "0.0.0.0", 8181)
 
   //return triggers app shutdown
   //  StdIn.readLine()

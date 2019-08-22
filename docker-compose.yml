@@ -48,4 +48,4 @@ services:
       - 8181:8181
     environment:
       SCALA_CRAWLER_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      SCALA_CRAWLER_SCHEMA_REGISTRY_URL: schema-registry:8081
+      SCALA_CRAWLER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
