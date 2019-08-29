@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import crawler.core.data.UrlPayload
 import crawler.core.messaging.PageCrawlerActor.CrawlPage
 import com.redis._
-import crawler.core.cache.UrlCache._
+import crawler.core.cache.CachingClients._
 
 /*
 queues up urls to be crawled
