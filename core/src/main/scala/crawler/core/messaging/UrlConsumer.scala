@@ -6,13 +6,13 @@ import java.util
 import java.util.Properties
 
 import akka.actor.ActorSystem
+import crawler.core.conf.ConfigSupport
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
-class UrlConsumer(system: ActorSystem) extends Runnable {
+class UrlConsumer(system: ActorSystem) extends Runnable with ConfigSupport {
 
-  val config = system.settings.config.getConfig("akka.kafka.consumer")
-  val urlTopic = system.settings.config.getConfig("crawler").getString("url-topic")
-  val bootstrapServers = "localhost:9092"
+  val config = kafkaConsumerConfig.getConfig("akka.kafka.consumer")
+  val urlTopic = crawlerConfig.getString("url-topic")
 
   private val kafkaConsumer = new KafkaConsumer[String, String](UrlConsumer.consumerProps)
   kafkaConsumer.subscribe(util.Arrays.asList(urlTopic))
@@ -41,11 +41,11 @@ class UrlConsumer(system: ActorSystem) extends Runnable {
 
 }
 
-object UrlConsumer {
+object UrlConsumer extends ConfigSupport {
 
   val consumerProps: Properties = {
     val props = new Properties()
-    props.put("bootstrap.servers", "localhost:9092")
+    props.put("bootstrap.servers", kafkaSettings.getProperty("bootstrap.servers"))
     props.put("group.id", "scala-crawler-url-consumer")
     props.put("enable.auto.commit", "true")
     props.put("auto.commit.interval.ms", "1000")

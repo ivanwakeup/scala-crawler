@@ -4,7 +4,7 @@ import akka.NotUsed
 import akka.actor.{ActorRef, ActorSystem}
 import akka.kafka.scaladsl.Producer
 import akka.kafka.{ProducerMessage, ProducerSettings}
-import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.scaladsl.{Sink, Source}
 import akka.stream.{ActorMaterializer, OverflowStrategy}
 import com.sksamuel.avro4s.Record
 import crawler.core.conf.ConfigSupport
@@ -16,7 +16,7 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{Serializer, StringSerializer}
 
-import collection.JavaConverters.mapAsJavaMap
+import scala.collection.JavaConverters.mapAsJavaMap
 
 class KafkaUrlProducer private ()(implicit system: ActorSystem)
   extends ConfigSupport {
