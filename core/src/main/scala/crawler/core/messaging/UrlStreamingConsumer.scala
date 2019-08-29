@@ -15,7 +15,6 @@ import org.apache.kafka.common.serialization.{ Deserializer, StringDeserializer 
 import collection.JavaConverters.mapAsJavaMap
 
 class UrlStreamingConsumer()(implicit sys: ActorSystem) extends ConfigSupport {
-
   val urlTopic = crawlerConfig.getString("url-topic")
   val consumerGroup = crawlerConfig.getString("url-consumer-group")
   val schemaRegUrl = schemaRegConfig.getString("schema.registry.url")
@@ -40,7 +39,7 @@ class UrlStreamingConsumer()(implicit sys: ActorSystem) extends ConfigSupport {
 
   stream.runWith(Sink.foreach(ele => {
     val rec = UrlPayload.format.from(ele.value)
-    q.crawlUrls(Seq(rec.url))
+    q.crawlUrls(Seq(rec))
   }))
 
 }

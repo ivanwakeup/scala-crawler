@@ -1,13 +1,14 @@
 package crawler.core.messaging
 
 import akka.Done
-import akka.actor.{ Actor, ActorLogging, Props }
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import AnalyzerSupervisorActor.{ Distribute, DistributionInitiated }
+import AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
 import PageCrawlerActor.CrawlPage
+import crawler.core.data.UrlPayload
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -25,9 +26,9 @@ class PageCrawlerActor(analyzerSupervisorProps: Props) extends Actor with ActorL
     case DistributionInitiated => context.parent ! DistributionInitiated
   }
 
-  private def crawlPage(url: String): Future[Done] = {
-    log.info(s"initiating crawl for $url")
-    val req = HttpRequest(uri = url)
+  private def crawlPage(payload: UrlPayload): Future[Done] = {
+    log.info(s"initiating crawl for ${payload.url}")
+    val req = HttpRequest(uri = payload.url)
 
     val resStream: HttpResponse => Future[Done] = (res: HttpResponse) => {
       res.entity.dataBytes.runWith(Sink.foreach({ byteString =>
@@ -43,7 +44,7 @@ class PageCrawlerActor(analyzerSupervisorProps: Props) extends Actor with ActorL
 }
 
 object PageCrawlerActor {
-  case class CrawlPage(url: String)
+  case class CrawlPage(url: UrlPayload)
   def props(analyzerSupervisorProps: Props) = {
     Props(classOf[PageCrawlerActor], analyzerSupervisorProps)
   }

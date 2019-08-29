@@ -1,16 +1,17 @@
 package crawler.core.messaging
 
-import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
-import akka.pattern.{ ask, _ }
-import akka.util.{ ByteString, Timeout }
-import crawler.core.analysis.BaseAnalyzer.{ Analyze, AnalyzerMetadata }
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.pattern.{ask, _}
+import akka.util.{ByteString, Timeout}
+import crawler.core.analysis.BaseAnalyzer.{Analyze, AnalyzerMetadata}
+import crawler.core.data.UrlPayload
 import crawler.core.messaging.AnalyzerRegistryActor.GetAnalyzers
 import crawler.core.messaging.AnalyzerSupervisorActor.Distribute
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends Actor with ActorLogging {
+class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, payload: UrlPayload) extends Actor with ActorLogging {
 
   implicit val ec = context.dispatcher
   implicit val timeout = Timeout(5.seconds)
@@ -25,7 +26,7 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends A
     (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistryActor.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
         val nextAnalyzer: ActorRef = context.actorOf(props)
-        nextAnalyzer ! AnalyzerMetadata(url)
+        nextAnalyzer ! AnalyzerMetadata(payload)
         analyzers = analyzers :+ nextAnalyzer
       })
       log.debug(s"${analyzers.size} analyzers now available")
@@ -48,8 +49,8 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, url: String) extends A
 
 object AnalyzerSupervisorActor {
 
-  def props(analyzerRegistry: ActorRef, url: String): Props = {
-    Props(classOf[AnalyzerSupervisorActor], analyzerRegistry, url)
+  def props(analyzerRegistry: ActorRef, payload: UrlPayload): Props = {
+    Props(classOf[AnalyzerSupervisorActor], analyzerRegistry, payload)
   }
 
   sealed trait AnalyzerSupervisorActorMessage
