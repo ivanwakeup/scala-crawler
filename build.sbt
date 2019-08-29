@@ -1,6 +1,4 @@
 import Dependencies._
-import sbt.enablePlugins
-
 
 lazy val commonSettings = Seq(
   organization    := "com.ivanwakeup",
@@ -10,7 +8,7 @@ lazy val commonSettings = Seq(
 lazy val root = Project(
   id = "crawler",
   base = file(".")
-).settings(commonSettings).aggregate(core, web)
+).settings(commonSettings).aggregate(core, web, crawl)
 
 lazy val core = Project(
   id = "core",
@@ -35,5 +33,16 @@ lazy val web = Project(
   settings(commonSettings,
     name := "web",
     mainClass in Compile := Some("crawler.web.main")
+  ).settings(webDockerSettings).dependsOn(core)
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
+
+
+lazy val crawl = Project(
+  id = "crawl",
+  base = file("crawl")
+).
+  settings(commonSettings,
+    name := "crawl",
+    mainClass in Compile := Some("crawler.crawl.main")
   ).settings(webDockerSettings).dependsOn(core)
   .enablePlugins(JavaAppPackaging, DockerPlugin)

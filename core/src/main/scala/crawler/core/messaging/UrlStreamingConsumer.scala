@@ -14,7 +14,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.{ Deserializer, StringDeserializer }
 import collection.JavaConverters.mapAsJavaMap
 
-class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) extends ConfigSupport {
+class UrlStreamingConsumer()(implicit sys: ActorSystem) extends ConfigSupport {
 
   val urlTopic = crawlerConfig.getString("url-topic")
   val consumerGroup = crawlerConfig.getString("url-consumer-group")
@@ -36,7 +36,7 @@ class UrlStreamingConsumer(system: ActorSystem)(implicit sys: ActorSystem) exten
 
   val stream = Consumer.plainSource(consumerSettings, Subscriptions.topics(urlTopic))
 
-  private val q = new CrawlerQueuer(system)
+  private val q = new CrawlerQueuer(sys)
 
   stream.runWith(Sink.foreach(ele => {
     val rec = UrlPayload.format.from(ele.value)
