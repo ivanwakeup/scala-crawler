@@ -22,8 +22,8 @@ lazy val core = Project(
 
 
 lazy val webDockerSettings = Seq(
-  packageName in Docker := "scala-crawler",
-  dockerExposedPorts := Seq(8081)
+  packageName in Docker := "scala-crawler-web",
+  dockerExposedPorts := Seq(8181)
 )
 
 lazy val web = Project(
@@ -37,6 +37,11 @@ lazy val web = Project(
   .enablePlugins(JavaAppPackaging, DockerPlugin)
 
 
+lazy val crawlDockerSettings = Seq(
+  packageName in Docker := "scala-crawler-crawl",
+  dockerExposedPorts := Seq(8182)
+)
+
 lazy val crawl = Project(
   id = "crawl",
   base = file("crawl")
@@ -44,5 +49,5 @@ lazy val crawl = Project(
   settings(commonSettings,
     name := "crawl",
     mainClass in Compile := Some("crawler.crawl.main")
-  ).settings(webDockerSettings).dependsOn(core)
+  ).settings(crawlDockerSettings).dependsOn(core)
   .enablePlugins(JavaAppPackaging, DockerPlugin)

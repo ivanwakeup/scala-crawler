@@ -1,4 +1,4 @@
-package crawler
+package crawler.crawl
 
 import akka.actor.ActorSystem
 import crawler.core.messaging.UrlStreamingConsumer

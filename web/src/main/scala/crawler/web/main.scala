@@ -3,7 +3,7 @@ package crawler.web
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity }
 import akka.http.scaladsl.server.Directives._
 import akka.pattern._
 import akka.stream.ActorMaterializer
@@ -29,13 +29,13 @@ object main extends App with ConfigSupport with SprayJsonSupport {
   val route = path("add-url") {
     post {
       entity(as[UrlPayload]) { payload: UrlPayload =>
-          payload.ack.fold ({
-            urlProducerNoAck ! KafkaUrlPayloadMessage(payload)
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "url produced, fire-n-forget-style!"))
-          }){ _ =>
-            val result = urlProducerAck ? KafkaUrlPayloadMessage(payload)
-            complete(result.map(ele => ele.toString))
-          }
+        payload.ack.fold({
+          urlProducerNoAck ! KafkaUrlPayloadMessage(payload)
+          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "url produced, fire-n-forget-style!"))
+        }) { _ =>
+          val result = urlProducerAck ? KafkaUrlPayloadMessage(payload)
+          complete(result.map(ele => ele.toString))
+        }
       }
     }
   }
