@@ -9,8 +9,4 @@ object CachingClients {
     body(client)
   }
 
-  def withMockRedisClient[A](body: RedisClient => A) = {
-    val clientMock = None
-  }
-
 }

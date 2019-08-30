@@ -23,4 +23,6 @@ trait ConfigSupport {
     entry => schemaRegistrySettings += (entry.getKey -> entry.getValue.unwrapped().toString)
   })
 
+  val redisConfg = baseConfig.getConfig("redis")
+
 }
