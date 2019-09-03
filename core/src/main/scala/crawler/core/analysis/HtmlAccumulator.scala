@@ -29,21 +29,22 @@ class HtmlAccumulator(system: ActorSystem) extends BaseAnalyzer with ConfigSuppo
         new ProducerRecord[String, String](crawledUrlTopic, metadata.payload.url, ele))
     }
     .via(Producer.flexiFlow(producerSettings))
-    .map {
-      case ProducerMessage.Result(metadata, ProducerMessage.Message(record, passThrough)) =>
-        s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
-
-      case ProducerMessage.MultiResult(parts, passThrough) =>
-        parts
-          .map {
-            case MultiResultPart(metadata, record) =>
-              s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
-          }
-          .mkString(", ")
-
-      case ProducerMessage.PassThroughResult(passThrough) =>
-        s"passed through"
-    }.recover({ case e => throw e }).to(Sink.ignore)
+    //    .map {
+    //      case ProducerMessage.Result(metadata, ProducerMessage.Message(record, passThrough)) =>
+    //        s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
+    //
+    //      case ProducerMessage.MultiResult(parts, passThrough) =>
+    //        parts
+    //          .map {
+    //            case MultiResultPart(metadata, record) =>
+    //              s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
+    //          }
+    //          .mkString(", ")
+    //
+    //      case ProducerMessage.PassThroughResult(passThrough) =>
+    //        s"passed through"
+    //    }
+    .recover({ case e => throw e }).to(Sink.ignore)
     .run()
 
   override def analyze(bytes: ByteString): Future[Unit] = {

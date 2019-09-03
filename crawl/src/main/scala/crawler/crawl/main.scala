@@ -1,7 +1,7 @@
 package crawler.crawl
 
 import akka.actor.ActorSystem
-import crawler.core.messaging.{CrawlerQueuer, UrlStreamingConsumer}
+import crawler.core.messaging.{ CrawlerQueuer, UrlStreamingConsumer }
 
 object main extends App {
 

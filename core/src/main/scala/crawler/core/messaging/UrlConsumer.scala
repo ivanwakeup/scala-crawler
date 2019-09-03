@@ -16,7 +16,7 @@ import org.apache.kafka.common.serialization.{ Deserializer, StringDeserializer 
 
 import scala.collection.JavaConverters.mapAsJavaMap
 
-class UrlConsumer(system: ActorSystem) extends Runnable with ConfigSupport {
+class UrlConsumer()(implicit system: ActorSystem) extends Runnable with ConfigSupport {
 
   val config = kafkaConsumerConfig.getConfig("akka.kafka.consumer")
   val urlTopic = crawlerConfig.getString("url-topic")
@@ -29,7 +29,7 @@ class UrlConsumer(system: ActorSystem) extends Runnable with ConfigSupport {
   private val kafkaConsumer = new KafkaConsumer[String, GenericRecord](UrlConsumer.consumerProps, new StringDeserializer, deser)
   kafkaConsumer.subscribe(util.Arrays.asList(urlTopic))
 
-  private val queuer = new CrawlerQueuer(system)
+  private val queuer = new CrawlerQueuer()
 
   def consume(): Unit = {
 
