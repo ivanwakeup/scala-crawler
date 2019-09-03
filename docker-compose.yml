@@ -63,7 +63,7 @@ services:
       SCALA_CRAWLER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
 
   redis:
-    image: bitnami/redis:4.0
+    image: redis:5.0.5
     hostname: redis
     ports:
       - 6379:6379
@@ -71,10 +71,12 @@ services:
       - scala-crawler-web
       - scala-crawler-crawl
     volumes:
-      - ./redis:/bitnami/redis/data
+      - ./redis:/redis/data
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
-      REDIS_BASEDIR: /bitnami/redis/data
+      #REDIS_BASEDIR: /bitnami/redis/data
+      #REDIS_VOLUME: /bitnami/redis/data
+      #REDIS_LOGDIR: /bitnami/redis/data/log
 
 
 
