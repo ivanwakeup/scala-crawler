@@ -1,9 +1,9 @@
 package crawler.core.messaging
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern.{ask, _}
-import akka.util.{ByteString, Timeout}
-import crawler.core.analysis.BaseAnalyzer.{Analyze, AnalyzerMetadata}
+import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
+import akka.pattern.{ ask, _ }
+import akka.util.{ ByteString, Timeout }
+import crawler.core.analysis.BaseAnalyzer.{ Analyze, AnalyzerMetadata }
 import crawler.core.data.UrlPayload
 import crawler.core.messaging.AnalyzerRegistryActor.GetAnalyzers
 import crawler.core.messaging.AnalyzerSupervisorActor.Distribute

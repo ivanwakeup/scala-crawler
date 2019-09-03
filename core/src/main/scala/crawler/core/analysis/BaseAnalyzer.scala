@@ -2,7 +2,7 @@ package crawler.core.analysis
 
 import akka.actor.Actor
 import akka.util.ByteString
-import BaseAnalyzer.{Analyze, AnalyzerMetadata}
+import BaseAnalyzer.{ Analyze, AnalyzerMetadata }
 import crawler.core.data.UrlPayload
 
 import scala.concurrent.Future

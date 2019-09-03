@@ -1,12 +1,12 @@
 package crawler.core.messaging
 
 import akka.Done
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import AnalyzerSupervisorActor.{Distribute, DistributionInitiated}
+import AnalyzerSupervisorActor.{ Distribute, DistributionInitiated }
 import PageCrawlerActor.CrawlPage
 import crawler.core.data.UrlPayload
 
