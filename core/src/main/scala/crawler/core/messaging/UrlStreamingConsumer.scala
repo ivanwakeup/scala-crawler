@@ -39,7 +39,6 @@ class UrlStreamingConsumer()(implicit sys: ActorSystem) extends ConfigSupport {
 
   stream.runWith(Sink.foreach(ele => {
     val rec = UrlPayload.format.from(ele.value)
-    println(rec.url)
     q.crawlUrls(Seq(rec))
   }))
 

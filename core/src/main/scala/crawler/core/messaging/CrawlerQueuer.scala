@@ -1,6 +1,6 @@
 package crawler.core.messaging
 
-import akka.actor.{ ActorLogging, ActorSystem }
+import akka.actor.ActorSystem
 import crawler.core.cache.CachingClients
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
@@ -24,21 +24,23 @@ class CrawlerQueuer(sys: ActorSystem) extends ConfigSupport {
   def crawlUrls(payloads: Seq[UrlPayload]): Unit = {
     payloads.foreach { payload =>
       pool.withClient { client =>
-        val result = client.get(payload.url)
-        result
+        client.get(payload.url)
       }.getOrElse {
-        log.info("url not crawled, beginning...")
+        log.info(s"${payload.url} not crawled, spawning supervisor hierarchy...")
         setCrawledAsync(payload.url).map { bool =>
           if (bool) {
             val supProps = AnalyzerSupervisorActor.props(registry, payload)
             val crawler = sys.actorOf(PageCrawlerActor.props(supProps))
             crawler ! CrawlPage(payload)
-          } else throw RedisSetKeyException("couldn't set redis key!!")
+          } else throw RedisSetKeyException(s"couldn't set redis key for ${payload.url}!!")
+        }.recover {
+          case e => throw e
         }
       }
     }
   }
 
+  /*async set redis key to denote this url has been crawled*/
   val setCrawledAsync: String => Future[Boolean] = (url: String) => Future {
     pool.withClient { client =>
       client.set(url, true)
