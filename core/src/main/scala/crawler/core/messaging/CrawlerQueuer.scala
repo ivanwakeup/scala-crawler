@@ -1,7 +1,7 @@
 package crawler.core.messaging
 
 import akka.actor.ActorSystem
-import crawler.core.cache.CachingClients._
+import crawler.core.cache.CachingClients
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
 import crawler.core.messaging.PageCrawlerActor.CrawlPage
@@ -16,12 +16,12 @@ class CrawlerQueuer(sys: ActorSystem) extends ConfigSupport {
 
   private val registry = sys.actorOf(AnalyzerRegistryActor.props())
 
-  private val redisHost = redisConfg.getString("host")
-  private val redisPort = redisConfg.getInt("port")
+  //use connection pool to help speed up throughput of incoming crawl requests
+  private val pool = CachingClients.redisClientPool
 
   def crawlUrls(payloads: Seq[UrlPayload]): Unit = {
     payloads.foreach { payload =>
-      withRedisClient(redisHost, redisPort) { client =>
+      pool.withClient { client =>
         client.get(payload.url)
       }.getOrElse { _ =>
         setCrawledAsync(payload.url).map { bool =>
@@ -37,7 +37,7 @@ class CrawlerQueuer(sys: ActorSystem) extends ConfigSupport {
   }
 
   val setCrawledAsync: String => Future[Boolean] = (url: String) => Future {
-    withRedisClient(redisHost, redisPort) { client =>
+    pool.withClient{ client =>
       client.set(url, true)
     }
   }

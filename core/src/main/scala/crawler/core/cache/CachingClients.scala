@@ -1,12 +1,13 @@
 package crawler.core.cache
 
 import com.redis._
+import crawler.core.conf.ConfigSupport
 
-object CachingClients {
+object CachingClients extends ConfigSupport {
 
-  def withRedisClient[A](host: String, port: Int)(body: RedisClient => A) = {
-    val client = new RedisClient(host, port)
-    body(client)
-  }
+  private val redisHost = redisConfg.getString("host")
+  private val redisPort = redisConfg.getInt("port")
+
+  lazy val redisClientPool = new RedisClientPool(redisHost, redisPort)
 
 }

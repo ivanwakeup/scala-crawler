@@ -61,3 +61,30 @@ services:
     environment:
       SCALA_CRAWLER_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCALA_CRAWLER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+
+  redis:
+    image: bitnami/redis:4.0
+    hostname: redis
+    ports:
+      - 6379:6379
+    links:
+      - scala-crawler-web
+      - scala-crawler-crawl
+    volumes:
+      - ./redis:/bitnami/redis/data
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      REDIS_BASEDIR: /bitnami/redis/data
+
+
+
+
+
+
+
+
+
+
+
+
+
