@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.ByteString
 import AnalyzerSupervisorActor.Distribute
+import crawler.core.data.UrlPayload
 import org.scalatest.FlatSpecLike
 
 import scala.concurrent.duration._
@@ -14,7 +15,7 @@ class AnalyzerSupervisorSpec extends TestKit(ActorSystem("test"))
 
 
   val registry = system.actorOf(AnalyzerRegistryActor.props())
-  val supervisor = system.actorOf(AnalyzerSupervisorActor.props(registry, "testurl"))
+  val supervisor = system.actorOf(AnalyzerSupervisorActor.props(registry, UrlPayload(10, "testurl", None)))
 
   "A PageCrawlerActor" should "respond with HTML from a page" in {
     supervisor ! Distribute(ByteString("this"))

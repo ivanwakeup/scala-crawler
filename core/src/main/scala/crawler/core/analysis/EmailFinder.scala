@@ -15,7 +15,7 @@ class EmailFinder extends BaseAnalyzer {
     while (emails.hasNext) {
       val nxtEmail = emails.next()
       emailSet += nxtEmail
-      println(s"found email $nxtEmail at ${metadata.url}")
+      println(s"found email $nxtEmail at ${metadata.payload.url}")
     }
     Future.successful()
   }

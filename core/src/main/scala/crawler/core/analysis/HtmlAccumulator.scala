@@ -26,7 +26,7 @@ class HtmlAccumulator(system: ActorSystem) extends BaseAnalyzer with ConfigSuppo
   val q = Source.queue[String](100, OverflowStrategy.backpressure)
     .map { ele =>
       ProducerMessage.single(
-        new ProducerRecord[String, String](crawledUrlTopic, metadata.url, ele))
+        new ProducerRecord[String, String](crawledUrlTopic, metadata.payload.url, ele))
     }
     .via(Producer.flexiFlow(producerSettings))
     .map {

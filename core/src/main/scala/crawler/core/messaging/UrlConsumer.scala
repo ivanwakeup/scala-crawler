@@ -7,14 +7,26 @@ import java.util.Properties
 
 import akka.actor.ActorSystem
 import crawler.core.conf.ConfigSupport
+import crawler.core.data.UrlPayload
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer}
+
+import scala.collection.JavaConverters.mapAsJavaMap
 
 class UrlConsumer(system: ActorSystem) extends Runnable with ConfigSupport {
 
   val config = kafkaConsumerConfig.getConfig("akka.kafka.consumer")
   val urlTopic = crawlerConfig.getString("url-topic")
+  val schemaRegUrl = schemaRegConfig.getString("schema.registry.url")
 
-  private val kafkaConsumer = new KafkaConsumer[String, String](UrlConsumer.consumerProps)
+  val deser = new KafkaAvroDeserializer(
+    new CachedSchemaRegistryClient(schemaRegUrl, 100),
+    mapAsJavaMap(schemaRegistrySettings)).asInstanceOf[Deserializer[GenericRecord]]
+
+  private val kafkaConsumer = new KafkaConsumer[String, GenericRecord](UrlConsumer.consumerProps, new StringDeserializer, deser)
   kafkaConsumer.subscribe(util.Arrays.asList(urlTopic))
 
   private val queuer = new CrawlerQueuer(system)
@@ -30,7 +42,8 @@ class UrlConsumer(system: ActorSystem) extends Runnable with ConfigSupport {
       while (it.hasNext) {
         val record = it.next()
         println(s"offset = ${record.offset()}, key = ${record.key()}, value = ${record.value()}")
-        queuer.crawlUrls(Seq(record.value()))
+        val payload = UrlPayload.format.from(record.value)
+        queuer.crawlUrls(Seq(payload))
       }
     }
   }
