@@ -12,7 +12,7 @@ import scala.concurrent.Future
 queues up urls to be crawled. ensures the url hasn't been crawled
 already by first checking redis cache. Sets redis key before crawling.
  */
-class CrawlerQueuer(sys: ActorSystem) extends ConfigSupport {
+class CrawlerQueuer()(implicit sys: ActorSystem) extends ConfigSupport {
 
   private val registry = sys.actorOf(AnalyzerRegistryActor.props())
   implicit val ec = sys.dispatcher

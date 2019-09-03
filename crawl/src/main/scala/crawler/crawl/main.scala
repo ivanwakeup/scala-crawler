@@ -1,11 +1,12 @@
 package crawler.crawl
 
 import akka.actor.ActorSystem
-import crawler.core.messaging.UrlStreamingConsumer
+import crawler.core.messaging.{CrawlerQueuer, UrlStreamingConsumer}
 
 object main extends App {
 
   implicit val sys = ActorSystem("crawl")
-  val _ = new UrlStreamingConsumer()
+  val q = new CrawlerQueuer()
+  val _ = new UrlStreamingConsumer(q)
 
 }
