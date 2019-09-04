@@ -39,7 +39,9 @@ object Dependencies {
 
     "com.typesafe.akka" % "akka-stream-kafka_2.12" % "1.0.4",
     "com.sksamuel.avro4s" %% "avro4s-core" % "3.0.0-RC3",
-    "net.debasishg" %% "redisclient" % "3.10"
+    "net.debasishg" %% "redisclient" % "3.10",
+    "org.jsoup" % "jsoup" % "1.12.1"
+
   ) ++ confluent
 
 }

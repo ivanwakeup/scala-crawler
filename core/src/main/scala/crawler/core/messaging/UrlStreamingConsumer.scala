@@ -15,13 +15,14 @@ import org.apache.kafka.common.serialization.{ Deserializer, StringDeserializer 
 import collection.JavaConverters.mapAsJavaMap
 
 class UrlStreamingConsumer(crawlerQueue: CrawlerQueuer)(implicit sys: ActorSystem) extends ConfigSupport {
-  val urlTopic = crawlerConfig.getString("url-topic")
-  val consumerGroup = crawlerConfig.getString("url-consumer-group")
-  val schemaRegUrl = schemaRegConfig.getString("schema.registry.url")
+
+  private val urlTopic = crawlerConfig.getString("url-topic")
+  private val consumerGroup = crawlerConfig.getString("url-consumer-group")
+  private val schemaRegUrl = schemaRegConfig.getString("schema.registry.url")
 
   implicit val materializer = ActorMaterializer()
 
-  val deser = new KafkaAvroDeserializer(
+  private val deser = new KafkaAvroDeserializer(
     new CachedSchemaRegistryClient(schemaRegUrl, 100),
     mapAsJavaMap(schemaRegistrySettings)).asInstanceOf[Deserializer[GenericRecord]]
 

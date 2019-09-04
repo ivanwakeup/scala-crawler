@@ -26,6 +26,7 @@ class AnalyzerSupervisorActor(analyzerRegistry: ActorRef, payload: UrlPayload) e
     (analyzerRegistry ? GetAnalyzers).mapTo[AnalyzerRegistryActor.AnalyzersResponse].map { res =>
       res.analyzers.foreach({ props =>
         val nextAnalyzer: ActorRef = context.actorOf(props)
+        //metadata MIGHT not be set, which means linkfinder may have unintended behavior
         nextAnalyzer ! AnalyzerMetadata(payload)
         analyzers = analyzers :+ nextAnalyzer
       })

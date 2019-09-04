@@ -1,14 +1,16 @@
 package crawler.core.messaging
 
 import akka.actor.{ Actor, ActorLogging, Props }
-import crawler.core.analysis.{ EmailFinder, HtmlAccumulator }
+import crawler.core.analysis.{ EmailFinder, HtmlAccumulatorProducer }
 import crawler.core.messaging.AnalyzerRegistryActor.{ AnalyzersResponse, GetAnalyzers }
 
 class AnalyzerRegistryActor extends Actor with ActorLogging {
 
+  implicit val sys = context.system
+
   private val analyzers: Seq[Props] = Seq(
     EmailFinder.props(),
-    HtmlAccumulator.props(context.system))
+    HtmlAccumulatorProducer.props())
 
   override def preStart(): Unit = {
     log.info(s"starting ${this.getClass.getCanonicalName} actor!!")

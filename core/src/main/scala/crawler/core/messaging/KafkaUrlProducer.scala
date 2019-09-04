@@ -27,7 +27,7 @@ class KafkaUrlProducer private ()(implicit system: ActorSystem)
   private val urlTopic = crawlerConfig.getString("url-topic")
   private val schemaRegUrl = schemaRegConfig.getString("schema.registry.url")
 
-  val serializer = new KafkaAvroSerializer(
+  private val serializer = new KafkaAvroSerializer(
     new CachedSchemaRegistryClient(schemaRegUrl, 100),
     mapAsJavaMap(schemaRegistrySettings)).asInstanceOf[Serializer[GenericRecord]]
 
@@ -51,19 +51,17 @@ class KafkaUrlProducer private ()(implicit system: ActorSystem)
   }
 
   private def kafkaSourceAck: Source[ProducerMessage.Envelope[String, GenericRecord, NotUsed], ActorRef] = {
-    Source.actorRefWithAck[KafkaUrlPayloadMessage](KafkaUrlProducedAck).map(message => {
-      val gr: Record = UrlPayload.format.to(message.urlPayload)
-      ProducerMessage.single(
-        new ProducerRecord[String, GenericRecord](urlTopic, gr))
-    })
+    Source.actorRefWithAck[KafkaUrlPayloadMessage](KafkaUrlProducedAck).map(formatUrlPayload)
   }
 
   private def kafkaSourceNoAck: Source[ProducerMessage.Envelope[String, GenericRecord, NotUsed], ActorRef] = {
-    Source.actorRef[KafkaUrlPayloadMessage](100, OverflowStrategy.dropTail).map(message => {
-      val gr: Record = UrlPayload.format.to(message.urlPayload)
-      ProducerMessage.single(
-        new ProducerRecord[String, GenericRecord](urlTopic, gr))
-    })
+    Source.actorRef[KafkaUrlPayloadMessage](100, OverflowStrategy.dropTail).map(formatUrlPayload)
+  }
+
+  val formatUrlPayload = (msg: KafkaUrlPayloadMessage) => {
+    val gr: Record = UrlPayload.format.to(msg.urlPayload)
+    ProducerMessage.single(
+      new ProducerRecord[String, GenericRecord](urlTopic, gr))
   }
 
 }

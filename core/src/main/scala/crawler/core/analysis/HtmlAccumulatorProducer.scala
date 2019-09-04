@@ -13,9 +13,9 @@ import org.apache.kafka.common.serialization.StringSerializer
 
 import scala.concurrent.Future
 
-class HtmlAccumulator(system: ActorSystem) extends BaseAnalyzer with ConfigSupport {
+class HtmlAccumulatorProducer extends BaseAnalyzer with ConfigSupport {
 
-  implicit val mat = ActorMaterializer()(system)
+  implicit val mat = ActorMaterializer()(context.system)
 
   val producerSettings: ProducerSettings[String, String] =
     ProducerSettings(kafkaProducerConfig, new StringSerializer, new StringSerializer)
@@ -29,22 +29,8 @@ class HtmlAccumulator(system: ActorSystem) extends BaseAnalyzer with ConfigSuppo
         new ProducerRecord[String, String](crawledUrlTopic, metadata.payload.url, ele))
     }
     .via(Producer.flexiFlow(producerSettings))
-    //    .map {
-    //      case ProducerMessage.Result(metadata, ProducerMessage.Message(record, passThrough)) =>
-    //        s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
-    //
-    //      case ProducerMessage.MultiResult(parts, passThrough) =>
-    //        parts
-    //          .map {
-    //            case MultiResultPart(metadata, record) =>
-    //              s"${metadata.topic}/${metadata.partition} ${metadata.offset}: ${record.value}"
-    //          }
-    //          .mkString(", ")
-    //
-    //      case ProducerMessage.PassThroughResult(passThrough) =>
-    //        s"passed through"
-    //    }
-    .recover({ case e => throw e }).to(Sink.ignore)
+    .recover({ case e => throw e })
+    .to(Sink.ignore)
     .run()
 
   override def analyze(bytes: ByteString): Future[Unit] = {
@@ -53,8 +39,8 @@ class HtmlAccumulator(system: ActorSystem) extends BaseAnalyzer with ConfigSuppo
 
 }
 
-object HtmlAccumulator {
-  def props(system: ActorSystem): Props = {
-    Props(classOf[HtmlAccumulator], system)
+object HtmlAccumulatorProducer {
+  def props(): Props = {
+    Props(classOf[HtmlAccumulatorProducer])
   }
 }
