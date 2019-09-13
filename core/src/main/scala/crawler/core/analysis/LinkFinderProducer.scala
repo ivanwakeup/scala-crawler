@@ -1,29 +1,27 @@
 package crawler.core.analysis
 
-import akka.actor.Props
-import akka.kafka.ProducerSettings
+import akka.actor.{ActorRef, Props}
 import akka.stream.ActorMaterializer
 import akka.util.ByteString
 import crawler.core.conf.ConfigSupport
 import crawler.core.data.UrlPayload
-import org.apache.kafka.common.serialization.StringSerializer
+import crawler.core.messaging.KafkaUrlProducer.KafkaUrlPayloadMessage
 import org.jsoup.Jsoup
 
 import scala.collection.mutable
 import scala.concurrent.Future
 
-class LinkFinderProducer extends BaseAnalyzer with ConfigSupport {
+class LinkFinderProducer(urlProducer: ActorRef) extends BaseAnalyzer with ConfigSupport {
 
   implicit val mat = ActorMaterializer()(context.system)
 
-  val producerSettings: ProducerSettings[String, String] =
-    ProducerSettings(kafkaProducerConfig, new StringSerializer, new StringSerializer)
-      .withBootstrapServers(kafkaSettings.getProperty("bootstrap.servers"))
-
-  private val toCrawlTopic = crawlerConfig.getString("url-topic")
-
   override def analyze(bytes: ByteString): Future[Unit] = {
     val links = parseDocLinks(bytes.utf8String)
+    links.foreach { link =>
+      val newPayload = UrlPayload(-1, link, None)
+      val withDepthUpdated = calcCrawlDepth(metadata.payload, newPayload)
+      urlProducer ! KafkaUrlPayloadMessage(withDepthUpdated)
+    }
     Future.successful()
   }
 
@@ -35,7 +33,7 @@ class LinkFinderProducer extends BaseAnalyzer with ConfigSupport {
 
     while (it.hasNext) {
       val link = it.next()
-      linkList += link.text()
+      linkList += link.attr("abs:href")
     }
     linkList
   }
@@ -51,8 +49,8 @@ class LinkFinderProducer extends BaseAnalyzer with ConfigSupport {
 }
 
 object LinkFinderProducer {
-  def props(): Props = {
-    Props(classOf[LinkFinderProducer])
+  def props(urlProducer: ActorRef): Props = {
+    Props(classOf[LinkFinderProducer], urlProducer)
   }
 
 }
