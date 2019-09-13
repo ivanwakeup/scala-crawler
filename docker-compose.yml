@@ -51,6 +51,8 @@ services:
     environment:
       SCALA_CRAWLER_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCALA_CRAWLER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      SCALA_CRAWLER_REDIS_PORT: 6379
+      SCALA_CRAWLER_REDIS_HOST: redis
 
   scala-crawler-crawl:
     image: scala-crawler-crawl:0.1.0-SNAPSHOT
@@ -58,11 +60,17 @@ services:
     links:
       - kafka
       - schema-registry
+    depends_on:
+      - kafka
+      - schema-registry
     ports:
       - 8182:8182
     environment:
       SCALA_CRAWLER_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SCALA_CRAWLER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      SCALA_CRAWLER_REDIS_PORT: 6379
+      SCALA_CRAWLER_REDIS_HOST: redis
+      LOG_LEVEL: DEBUG
 
   redis:
     image: redis:5.0.5
