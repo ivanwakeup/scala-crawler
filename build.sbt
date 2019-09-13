@@ -17,7 +17,7 @@ lazy val core = Project(
   settings(commonSettings,
     name := "core",
     resolvers += Resolver.mavenLocal,
-    resolvers += Resolver.bintrayRepo("hseeberger", "maven")
+    resolvers += "Confluent Maven Repo" at "http://packages.confluent.io/maven/",
 ).settings(libraryDependencies ++= coreDeps)
 
 

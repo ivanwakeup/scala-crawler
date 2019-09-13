@@ -27,14 +27,13 @@ class LinkFinderProducer extends BaseAnalyzer with ConfigSupport {
     Future.successful()
   }
 
-
   def parseDocLinks(htmlString: String): mutable.TreeSet[String] = {
     val parsedDoc = Jsoup.parse(htmlString)
     val links = parsedDoc.select("a[href]")
     val it = links.iterator()
     var linkList: mutable.TreeSet[String] = scala.collection.mutable.TreeSet()
 
-    while(it.hasNext) {
+    while (it.hasNext) {
       val link = it.next()
       linkList += link.text()
     }
@@ -42,14 +41,12 @@ class LinkFinderProducer extends BaseAnalyzer with ConfigSupport {
   }
 
   val calcCrawlDepth = (prevPayload: UrlPayload, nextPayload: UrlPayload) => {
-    if(prevPayload.depth <= 0) {
+    if (prevPayload.depth <= 0) {
       nextPayload.copy(-1, nextPayload.url, nextPayload.ack)
-    }
-    else {
+    } else {
       nextPayload.copy(prevPayload.depth - 1, nextPayload.url, nextPayload.ack)
     }
   }
-
 
 }
 
